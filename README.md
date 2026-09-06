@@ -1,51 +1,31 @@
-# ZipToGit Pro v3.3 — финальная версия
+# ZipToGit Pro
 
-Панель управления GitHub. Два способа запуска из одного кода:
+**Early public release (v3.3).** A self-hosted GitHub control panel: manage repos, edit files, open PRs, and upload a ZIP or folder through the GitHub API — no `git` CLI.
 
-| Способ | Команды | Бэкенд |
-|---|---|---|
-| **Next.js (этот проект)** | `npm install && npm run dev` (Node ≥ 18) → http://localhost:3000 | ✅ same-origin прокси `/api/github/*`, `/api/scan`, `/api/health` |
-| **Монолит** | открыть `../index.html` (или `python3 -m http.server`) | ❌ браузер ходит в api.github.com напрямую |
+This is raw on purpose. The code is public so other people can read it, run it locally, and review how tokens and uploads are handled.
 
-Фронт сам детектирует бэкенд (`GET /api/health`, 1.5 s таймаут) и переключает
-`gh()` на прокси — один код, два режима. Токен пользователя в обоих случаях остаётся
-в браузере и передаётся per-request в `Authorization`; сервер своего токена не держит.
+[Features](#features) · [Quick start](#quick-start) · [Security](#security) · [Limitations](#honest-limitations) · [Contributing](#contributing)
 
-## Бэкенд
+---
 
-- `src/app/api/github/[...path]/route.js` — catch-all прокси к api.github.com
-  (метод, body, accept, auth — сквозные; наружу — status + content-type + rate-заголовки).
-- `src/app/api/scan/route.js` — серверный секрет-сканер (`src/lib/scanner.server.js`,
-  те же правила, что и клиентские).
-- `src/app/api/health/route.js` — детект режима + версия.
+## Why this exists
 
-## Фронтенд
+GitHub’s website is fine. This tool is for the cases where you want a local panel that can:
 
-Vanilla-JS модули в `src/lib/zg/modules/*` (источник истины), склеиваются `node build.mjs`
-в `src/lib/zg/bundle.js` (для Next-страницы) и `../index.html` (монолит).
-Разметка — `modules/markup.html`, стили — `modules/styles.css`.
+- push a ZIP or a folder into a new or existing repo without installing git
+- scan for secrets before anything is committed
+- edit files, open PRs, and look at actions/issues/releases from one screen
 
-Возможности (v3.3): дашборд с heatmap; репо (create/rename/delete/visibility/topics/
-collaborators); file tree + Monaco (с фолбэком) + rename/move + конфликты remote;
-upload-мастер (ZIP/папка, ignore-правила, превью added/overwritten/removed, Merge/Replace
-с ack, дефолт `upload/YYYY-MM-DD` + PR, cancel/retry, LFS-предупреждения); секрет-сканер
-(строки, never-push, mask, .env.example, allowlist per-repo, ссылка на alerts);
-branches (+ahead/behind, merge); PR (create/merge с pre-merge правилами, review с
-line-комментами и чеклистом); issues; commits + diff; releases + tags; actions
-(dispatch/runs); pages; gists; activity; глобальный поиск; Cmd/Ctrl+K; i18n EN/RU;
-адаптив; rate-чип; человечные ошибки.
+It is **not** a git client. There is no clone, pull, rebase, or local history.
 
-## Безопасность
+---
 
-- Токен: память вкладки по умолчанию; Remember — AES-GCM (PBKDF2 120k из пароля),
-  unlock-экран, idle-logout 30 мин, маска с показом на 5 с, redact везде.
-- CSP в монолите и в `layout.jsx`; `reactStrictMode: true`; gitleaks в CI
-  (`.github/workflows/secret-scan.yml`); зависимости пиннованы + lockfile; без телеметрии.
+## Quick start
 
-## Честные ограничения
+**Requirements:** Node.js 18+
 
-Не git (нет clone/pull/rebase); rate limits GitHub; файлы >100 МБ не проходят
-(совет — LFS); нет OAuth device flow (нужен OAuth App + сервер с клиент-секретом);
-Monaco с CDN (без сети — фолбэк). Полная история — в CHANGELOG.md, устройство — в ARCHITECTURE.md.
-
-MIT.
+```bash
+git clone https://github.com/hi77x/ZipGit---Panel.git
+cd ZipGit---Panel
+npm install
+npm run dev
