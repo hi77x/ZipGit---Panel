@@ -5,7 +5,7 @@
 > A self-hosted GitHub control panel for managing repositories, editing files, opening pull requests, and uploading a ZIP or folder through the GitHub API — **no `git` CLI required**.
 
 ![License](https://img.shields.io/github/license/hi77x/ZipGit---Panel)
-![GitHub release](https://img.shields.io/github/v/release/hi77x/ZipGit---Panel)
+![GitHub release]([https://img.shields.io/github/v/release/hi77x/ZipGit---Panel](https://github.com/hi77x/ZipGit---Panel/releases/tag/v3.3.0))
 ![GitHub stars](https://img.shields.io/github/stars/hi77x/ZipGit---Panel?style=flat)
 ![GitHub issues](https://img.shields.io/github/issues/hi77x/ZipGit---Panel)
 
