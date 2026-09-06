@@ -174,10 +174,6 @@ The GitHub proxy passes through the request method, body, `Accept`, and authoriz
 
 The server-side scanner uses `src/lib/scanner.server.js` with the same rules as the client.
 
-Longer write-up: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
-
-History: [`CHANGELOG.md`](./CHANGELOG.md)
-
 ---
 
 ## Security
