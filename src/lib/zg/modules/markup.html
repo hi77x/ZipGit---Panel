@@ -1,0 +1,69 @@
+<div class="bg"></div>
+
+<!-- ================= AUTH ================= -->
+<div id="authScreen">
+  <div class="auth-wrap fade-in">
+    <div class="logo-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M10 12h4"/></svg></div>
+    <h1 class="auth-title">ZipToGit <span class="muted">Pro</span></h1>
+    <p class="muted small" data-i18n="auth_sub"></p>
+    <div class="auth-card glass">
+      <label class="lbl" data-i18n="auth_token_lbl"></label>
+      <div class="token-row">
+        <input class="field" id="tokenInput" type="password" placeholder="ghp_••••••••••••" autocomplete="off" spellcheck="false">
+        <button class="btn btn-ghost btn-icon" data-act="eye-token" title="•••"><svg class="ic" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div id="unlockBox" class="glass-2" style="display:none;padding:12px 14px;margin-top:12px">
+        <label class="lbl" data-i18n="au_unlock"></label>
+        <div class="token-row">
+          <input class="field" id="unlockPass" type="password" placeholder="••••••••">
+          <button class="btn btn-primary btn-sm" id="unlockBtn" data-i18n="au_unlock"></button>
+        </div>
+        <div class="hint" id="unlockErr" style="display:none;color:var(--bad)"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;margin-top:12px">
+        <label class="switch"><input type="checkbox" id="rememberChk"><i></i></label>
+        <span class="small" style="color:var(--warn)" data-i18n="auth_remember"></span>
+      </div>
+      <p class="hint" style="color:var(--dim)" data-i18n="au_rem_warn"></p>
+      <div id="notLocalWarn" class="hint" style="display:none;color:var(--warn);margin-top:8px"></div>
+      <div id="authErr" class="err" style="display:none"></div>
+      <button class="btn btn-primary" id="connectBtn" style="width:100%;justify-content:center;margin-top:15px">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        <span data-i18n="auth_connect"></span>
+      </button>
+      <label class="lbl" style="margin-top:14px" data-i18n="au_scn_t"></label>
+      <div class="mode-cards" id="scnModes">
+        <label class="mode-card on" data-scn="full"><input type="radio" name="scn" checked><span class="mrad"></span><div><b data-i18n="au_scn_full"></b><span data-i18n="au_scn_full_s"></span></div></label>
+        <label class="mode-card" data-scn="up"><input type="radio" name="scn"><span class="mrad"></span><div><b data-i18n="au_scn_up"></b><span data-i18n="au_scn_up_s"></span></div></label>
+        <label class="mode-card" data-scn="read"><input type="radio" name="scn"><span class="mrad"></span><div><b data-i18n="au_scn_read"></b><span data-i18n="au_scn_read_s"></span></div></label>
+      </div>
+      <div class="scope-chips" id="scopeChips"></div>
+      <div class="hint"><span data-i18n="auth_scopes_hint"></span> <a id="tokenLink" href="https://github.com/settings/tokens/new?scopes=repo,workflow,user,gist&description=ZipToGit%20Pro" target="_blank" rel="noopener" data-i18n="auth_create_token"></a><br><span class="dim" id="delRepoNote"></span></div>
+    </div>
+    <p class="hint" style="margin-top:18px" data-i18n="auth_foot"></p>
+  </div>
+</div>
+
+<!-- ================= SHELL ================= -->
+<div id="appShell">
+  <aside class="sidebar">
+    <div class="side-logo">
+      <div class="mark"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M10 12h4"/></svg></div>
+      <div><b>ZipToGit</b><span class="lbl-txt">Pro · v3</span></div>
+    </div>
+    <nav id="sideNav"></nav>
+    <div class="side-foot">
+      <div class="user-chip" id="userChip"></div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="btn btn-ghost btn-sm" data-act="logout" style="flex:1;justify-content:center"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="lbl-txt" data-i18n="nav_logout"></span></button>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <div id="content"></div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
