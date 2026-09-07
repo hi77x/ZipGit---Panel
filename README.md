@@ -1,245 +1,85 @@
 # ZipToGit Pro
 
-**Early public release · v3.3**
+ZipToGit Pro is a production-oriented Next.js application for importing a ZIP archive into a new GitHub repository as one clean root commit. It also provides repository overview, safe README rendering, recent activity, GitHub Pages configuration, and GitHub Actions controls.
 
-> A self-hosted GitHub control panel for managing repositories, editing files, opening pull requests, and uploading a ZIP or folder through the GitHub API — **no `git` CLI required**.
+The GitHub access token stays inside the encrypted Auth.js JWT session. It is never returned by `/api/auth/session`, embedded in React props, or stored in browser storage.
 
-![License](https://img.shields.io/github/license/hi77x/ZipGit---Panel)
-[![Latest Release](https://img.shields.io/github/v/release/hi77x/ZipGit---Panel?display_name=tag&include_prereleases)](https://github.com/hi77x/ZipGit---Panel/releases/latest)
-![GitHub stars](https://img.shields.io/github/stars/hi77x/ZipGit---Panel?style=flat)
-![GitHub issues](https://img.shields.io/github/issues/hi77x/ZipGit---Panel)
+## What it does
 
-This project is intentionally raw. The code is public so other people can read it, run it locally, and review how tokens and uploads are handled.
+- GitHub OAuth with `read:user user:email repo workflow` scopes
+- private and public repository discovery through a server-side BFF
+- streaming multipart upload to a unique temporary directory
+- lazy ZIP metadata preflight before any GitHub mutation
+- one root commit through GitHub's Git Data API, with a maximum of six concurrent blob writes
+- GFM README rendering through GitHub with a safe local fallback
+- normalized repository activity without exposing raw event payloads
+- Pages disabled/configured/building/deployed/failed states
+- workflow and run listing, dispatch, cancel, and re-run operations
+- centralized typed errors, request IDs, rate-limit metadata, CSP, and security headers
+- responsive desktop, tablet, and mobile navigation
 
-**[Features](#features)** · **[Quick start](#quick-start)** · **[Security](#security)** · **[Limitations](#honest-limitations)** · **[Contributing](#contributing)**
+## Requirements
 
----
+- Node.js 22.12 or newer
+- npm 10 or newer
+- a GitHub OAuth App
+- a Node host with writable temporary storage and support for requests lasting up to five minutes
 
-## Why this exists
+Short-timeout serverless platforms should move `ImportService` to a durable worker. The service boundary is already isolated for that migration.
 
-GitHub's website is fine. This tool is for the cases where you want a local panel that can:
-
-- **Push a ZIP or folder** into a new or existing repository without installing Git.
-- **Scan for secrets** before anything is committed.
-- **Edit files**, open PRs, and look at Actions, issues, and releases from one screen.
-
-It is **not a Git client**. There is no clone, pull, rebase, or local history.
-
----
-
-## Quick start
-
-**Requirements:** Node.js 18+
+## Local setup
 
 ```bash
-git clone https://github.com/hi77x/ZipGit---Panel.git
-cd ZipGit---Panel
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Open **http://localhost:3000**.
+Create a GitHub OAuth App and configure:
 
-Paste a GitHub token into the UI. The token stays in the browser and is sent as an `Authorization` header on each request. The server never stores its own token.
+- Homepage URL: `http://localhost:3000`
+- Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
 
----
+Fill the following values in `.env.local`:
 
-## Two launch modes, one codebase
-
-| Mode | How to run | Backend |
-|---|---|---|
-| **Next.js (this repo)** | `npm install && npm run dev` → `http://localhost:3000` | Same-origin proxy: `/api/github/*`, `/api/scan`, `/api/health` |
-| **Monolith** | Run `node build.mjs`, then open the generated `../index.html` or serve it with `python3 -m http.server` | Browser talks directly to `api.github.com` |
-
-The UI probes `GET /api/health` with a **1.5-second timeout**.
-
-If the proxy is up, `gh()` switches to it. If not, it uses the GitHub API directly.
-
----
-
-## Token scopes
-
-Use a **classic PAT** or a **fine-grained token** with the smallest set that matches what you actually click.
-
-| Scope | Needed for |
-|---|---|
-| `repo` | Private repos, files, branches, PRs, issues, releases, collaborators, Pages |
-| `workflow` | Dispatching Actions / pushing workflow files |
-| `gist` | Gists |
-| `delete_repo` | **Do not add this.** Repo delete is supported in the UI but should stay off the token |
-
-Create the token at [GitHub → Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens).
-
----
-
-## Features
-
-### Dashboard
-
-- Contribution-style heatmap
-- Activity overview
-- Rate-limit information
-
-### Repositories
-
-- Create repositories
-- Rename repositories
-- Delete repositories
-- Change visibility
-- Manage topics
-- Manage collaborators
-
-### Files & editor
-
-- File tree
-- Monaco editor
-- CDN loading with a fallback editor
-- Rename / move files
-- Remote conflict detection
-
-### Upload wizard
-
-- ZIP or folder upload
-- Ignore rules
-- Preview of:
-  - Added files
-  - Overwritten files
-  - Removed files
-- **Merge** or **Replace** modes
-- Explicit acknowledgement for destructive operations
-- Default branch `upload/YYYY-MM-DD` + PR workflow
-- Cancel / retry
-- Git LFS warnings
-
-### Secret scanner
-
-- Findings with severity
-- Never-push rules
-- Secret masking
-- `.env.example`
-- Per-repo allowlist
-- Links to GitHub secret-scanning alerts
-
-### GitHub workflow
-
-- Branches with ahead / behind information
-- Branch merge
-- Pull requests
-  - Create
-  - Merge
-  - Pre-merge rules
-  - Review
-  - Line comments
-  - Checklist
-- Issues
-- Commits + diffs
-- Releases + tags
-- Actions
-  - Dispatch
-  - Runs
-- Pages
-- Gists
-- Activity
-- Global search
-- `Cmd/Ctrl + K` command palette
-
-### UI
-
-- English and Russian
-- Responsive layout
-- Rate-limit chip
-- Readable API errors
-
----
-
-## How the code is split
-
-Edit modules, then rebuild the generated files:
-
-```bash
-node build.mjs
+```dotenv
+AUTH_SECRET=generate-a-random-value-of-at-least-32-characters
+AUTH_GITHUB_ID=your-oauth-client-id
+AUTH_GITHUB_SECRET=your-oauth-client-secret
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-| Path | Role |
-|---|---|
-| `src/lib/zg/modules/*` | **Source of truth** — vanilla JS + `markup.html` + `styles.css` |
-| `src/lib/zg/bundle.js` | Generated bundle for the Next.js page |
-| `src/lib/zg/markup.js` | Generated markup string |
-| `../index.html` | Generated monolith written outside this repo by `build.mjs` |
-| `src/app/api/github/[...path]/route.js` | Catch-all proxy to `api.github.com` |
-| `src/app/api/scan/route.js` | Server-side secret scanner |
-| `src/app/api/health/route.js` | Mode detection + version |
+Generate `AUTH_SECRET` with a cryptographically secure password generator. Never commit `.env.local`.
 
-The GitHub proxy passes through the request method, body, `Accept`, and authorization.
+## Validation commands
 
-The server-side scanner uses `src/lib/scanner.server.js` with the same rules as the client.
+```bash
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+npm run test:e2e
+```
 
----
+`npm run check` runs lint, TypeScript, unit/integration tests, and the production build in sequence. Playwright is separate because it starts local application and mock GitHub servers.
 
-## Security
+## ZIP safety policy
 
-Read [`SECURITY.md`](./SECURITY.md) before using this with a real token.
+Validation runs before the repository is created. The importer rejects traversal, absolute or drive-letter paths, NUL characters, duplicate or case-colliding paths, encrypted entries, symlinks, special files, `.git/**`, likely credentials, and archives exceeding configured limits.
 
-### Short version
+The default exclusions are:
 
-- **Default:** token lives in tab memory only.
-- **Remember:** AES-GCM encryption in `localStorage`.
-- Encryption key is derived from your password using **PBKDF2 with 120,000 iterations**.
-- The password is **not stored**.
-- Unlock screen.
-- **30-minute idle logout**.
-- Masked token (`ghp_…xxxx`) with a five-second reveal.
-- Token values are redacted in UI messages, commits, and gists.
-- Warning when the app is not on localhost.
-- CSP in the monolith and `src/app/layout.jsx`.
-- `reactStrictMode: true`.
-- Gitleaks in CI: `.github/workflows/secret-scan.yml`.
-- Dependencies pinned via the lockfile.
-- **No telemetry.**
+```text
+.git/** node_modules/** .next/** dist/** build/** coverage/**
+.turbo/** .cache/** *.log .DS_Store Thumbs.db
+```
 
-> **Do not deploy this as a public multi-user service.**
->
-> ZipToGit Pro is a local / self-hosted tool intended for use with your own token.
+`.env.example` is allowed. `.env`, `.env.*`, private keys, SSH identity files, service-account JSON, and credential/secret filenames block the entire import before GitHub is changed.
 
----
+## Architecture
 
-## Honest limitations
-
-- **Not Git:** no clone, pull, fetch, rebase, or submodule workflow.
-- GitHub API rate limits apply.
-- Files over **100 MB** cannot be pushed this way; use Git LFS.
-- No OAuth device flow. That would require an OAuth App and a server holding a client secret.
-- Monaco loads from a CDN; offline you get the fallback editor.
-- The generated monolith file is written to `../index.html`, not into this repository.
-
----
-
-## Status
-
-**Public · MIT-licensed · still rough**
-
-Core local flows work. Expect sharp edges, missing tests in-repo, and UI that will change.
-
-If you review the project, the useful questions are:
-
-1. Can the token leak from the **Remember / unlock** path?
-2. Can the upload wizard overwrite a repo without a clear acknowledgement?
-3. Does the proxy forward anything it should not?
-
----
-
-## Contributing
-
-See [`CONTRIBUTING.md`](./CONTRIBUTING.md).
-
-Issues and PRs are welcome.
-
-> Small, reviewable changes beat large rewrites.
-
----
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for trust boundaries and the route/service map. See [SECURITY.md](./SECURITY.md) before operating a public deployment. Manual real-GitHub verification is documented in [docs/MANUAL_SMOKE_TEST.md](./docs/MANUAL_SMOKE_TEST.md).
 
 ## License
 
-**MIT © 2026 CJ**
-
-See [`LICENSE`](./LICENSE).
+MIT. See [LICENSE](./LICENSE).
