@@ -1,5 +1,17 @@
 # ZipToGit Pro
 
+**v4.0.0 · Production-oriented ZIP → GitHub import panel built with Next.js, TypeScript, GitHub OAuth, Pages and Actions tooling.**
+
+![License](https://img.shields.io/github/license/hi77x/ZipGit---Panel)
+[![Latest Release](https://img.shields.io/github/v/release/hi77x/ZipGit---Panel?display_name=tag&include_prereleases)](https://github.com/hi77x/ZipGit---Panel/releases/latest)
+![GitHub stars](https://img.shields.io/github/stars/hi77x/ZipGit---Panel?style=flat)
+![GitHub issues](https://img.shields.io/github/issues/hi77x/ZipGit---Panel)
+[![CI](https://github.com/hi77x/ZipGit---Panel/actions/workflows/ci.yml/badge.svg)](https://github.com/hi77x/ZipGit---Panel/actions/workflows/ci.yml)
+
+**[What it does](#what-it-does) · [Local setup](#local-setup) · [ZIP safety](#zip-safety-policy) · [Architecture](#architecture) · [License](#license)**
+
+---
+
 ZipToGit Pro is a production-oriented Next.js application for importing a ZIP archive into a new GitHub repository as one clean root commit. It also provides repository overview, safe README rendering, recent activity, GitHub Pages configuration, and GitHub Actions controls.
 
 The GitHub access token stays inside the encrypted Auth.js JWT session. It is never returned by `/api/auth/session`, embedded in React props, or stored in browser storage.
