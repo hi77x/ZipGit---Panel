@@ -1,155 +1,47 @@
-# Security
+# Security policy
 
-ZipToGit Pro talks to the GitHub API with **your personal access token**.
+## Supported version
 
-> **Treat that token like a password.**
+Security fixes are maintained on the current `main` branch and latest tagged release.
 
----
+## Trust model
 
-## How the token is stored
+ZipToGit Pro uses GitHub OAuth and an encrypted, `HttpOnly`, `SameSite=Lax` Auth.js JWT cookie. The GitHub access token is kept in the server-only JWT payload. Client Components call only same-origin allowlisted API routes; they never call `api.github.com` or receive the token.
 
-### Default
-
-- The token is kept **in memory for the current browser tab**.
-- Close the tab and the token is gone.
-
-### Remember
-
-The optional **Remember** feature encrypts the token before storing it in `localStorage`.
-
-It uses:
-
-- **AES-GCM** for encryption
-- **PBKDF2** for key derivation
-- **120,000 iterations**
-- A password you enter locally
-
-The password itself is **not saved**.
-
-### Session protections
-
-- Idle logout after **30 minutes**
-- Masked token display
-- Five-second token reveal
-- Token values redacted in UI messages, commits, and gists
-
----
-
-## Next.js proxy
-
-In Next.js mode, the application can use the local:
+The OAuth scopes are broad because repository creation, private repository reads, Pages, and Actions mutations require them:
 
 ```text
-/api/github/*
+read:user user:email repo workflow
 ```
 
-proxy.
+Deploy the application only on a host you trust with those credentials. Use HTTPS in production.
 
-The proxy forwards the browser's `Authorization` header to the GitHub API.
+## ZIP boundary
 
-It **does not keep a server-side token**.
+An uploaded archive is untrusted input. The Node route streams it into a directory created by `mkdtemp`, enforces the compressed-size limit while receiving it, and removes the directory in `finally`.
 
-```text
-Browser
-   │
-   │ Authorization: Bearer <your token>
-   ▼
-Local Next.js proxy
-   │
-   │ Authorization: Bearer <your token>
-   ▼
-GitHub API
-```
+Before repository creation, lazy ZIP preflight rejects:
 
-The proxy is intended for local or self-hosted use.
+- traversal, absolute paths, drive paths, NUL, excessive path depth or length
+- encrypted entries, symlinks, and special files
+- duplicate and case-insensitive path collisions
+- `.git/**` and likely credential files
+- excessive file count, individual size, or total uncompressed size
 
----
+Files are read as bytes and sent as base64 Git blobs. Line endings and binary data are not transformed. A failure after repository creation never triggers repository deletion or a forced ref update.
 
-## What not to do
+## README boundary
 
-### Do not add `delete_repo`
+GitHub-rendered Markdown is sanitized with an explicit tag and attribute allowlist. Script, iframe, form, inline style, and event-handler content is removed. Relative links and images are rewritten to the selected repository/ref. Image hosts are allowlisted. The local `react-markdown` fallback does not enable raw HTML.
 
-Do not put `delete_repo` on the token unless you fully accept the risk of accidental repository deletion.
+## Browser policy
 
-The UI supports repository deletion, but this permission should normally remain disabled.
+Per-request CSP nonces protect application scripts. Production uses `connect-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`, and exact image origins. Responses also set nosniff, DENY framing, a restrictive Permissions Policy, strict referrer behavior, and production HTTPS HSTS.
 
-### Do not enable Remember on a shared computer
+## Logging and errors
 
-The Remember feature should not be used on a computer other people can access.
-
-### Do not host a public instance
-
-Do not host a public ZipToGit Pro instance and ask users to paste their GitHub tokens into it.
-
-This project is intended for **local / self-hosted use with your own token**.
-
-### Do not commit secrets
-
-Never commit:
-
-- `.env` files
-- PEM files
-- Private keys
-- GitHub tokens
-- API keys
-- Passwords
-- Other credentials
-
-The built-in scanner and Gitleaks CI are a **backstop, not a guarantee**.
-
----
-
-## Secret scanning
-
-ZipToGit Pro includes a secret scanner intended to detect sensitive values before they are committed.
-
-The scanner is an additional safety layer, not proof that a repository contains no secrets.
-
-If a secret is detected:
-
-1. **Stop** the upload or commit.
-2. Remove the secret from the files.
-3. Rotate or revoke the credential if it has already been exposed.
-4. Review Git history if the secret was previously committed.
-
----
+Logs contain request identifiers and endpoint templates, never authorization headers, cookies, archive bytes, file contents, workflow input values, or OAuth codes. API errors return a safe message and request ID without stack traces or temporary paths.
 
 ## Reporting a vulnerability
 
-Please report security issues responsibly.
-
-### Non-exploitable issues
-
-Open a GitHub issue with the `security` label if the report is not exploitable against live user tokens.
-
-### Token theft or misuse
-
-If the bug can steal or misuse a token, **do not file a public issue**.
-
-Email the maintainer through the address on the GitHub profile instead.
-
-Please include:
-
-- What the app does that it should not.
-- Steps to reproduce locally.
-- Whether **Next.js mode**, **monolith mode**, or **both** are affected.
-- Relevant logs or screenshots that do not contain secrets.
-
-> **Never include an actual GitHub token, password, API key, or other credential in a vulnerability report.**
-
----
-
-## Security philosophy
-
-ZipToGit Pro intentionally keeps authentication simple:
-
-- The user supplies their own GitHub token.
-- The browser holds the token by default.
-- The local proxy does not maintain a separate server-side token.
-- Optional persistent storage is encrypted.
-- Secret scanning happens before uploads.
-- The project has no telemetry.
-
-This reduces the amount of infrastructure that needs to be trusted, but it does **not** eliminate the risks associated with using a personal GitHub token.
-
-Always use the **minimum token permissions necessary** for the operations you need.
+Do not open a public issue for an exploitable vulnerability. Use GitHub's private vulnerability reporting for this repository. Include the affected commit, reproduction steps, impact, and a redacted proof of concept. Never include a live token, cookie, OAuth code, private key, or archive containing real credentials.

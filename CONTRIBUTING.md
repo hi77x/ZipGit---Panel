@@ -1,97 +1,33 @@
 # Contributing
 
-Thanks for looking at a raw project.
+Thank you for improving ZipToGit Pro.
 
-> Contributions, security reviews, documentation fixes, and small improvements are welcome.
+## Development workflow
 
----
+1. Create a focused branch from `main`.
+2. Copy `.env.example` to `.env.local` and use a dedicated development OAuth App.
+3. Keep GitHub traffic inside `src/server/github/client.ts` and domain services.
+4. Add or update tests for behavior changes.
+5. Run `npm run check` and the relevant Playwright scenarios.
+6. Open a pull request with the problem, root cause, verification evidence, and security impact.
 
-## Dev setup
+## Engineering rules
 
-**Requirements:** Node.js 18+
+- TypeScript remains strict; do not use `any`, disabled checks, empty catches, or type assertions to hide a design error.
+- Client Components must not import `src/server/**`, receive access tokens, or call GitHub directly.
+- Route Handlers use the common API envelope and error mapper.
+- ZIP policy changes must be enforced before any GitHub mutation and include negative tests.
+- Treat endpoint-specific 404/409/422 responses as domain states, not generic crashes.
+- Keep styles inside the existing semantic token system and verify 360, 390, 768, 1024, and 1440 pixel layouts.
+- Production behavior cannot depend on mock data, static counters, or placeholder states.
 
-```bash
-npm install
-npm run dev
-```
+## Pull request checklist
 
-The UI source of truth is:
+- [ ] lint, typecheck, tests, and production build pass
+- [ ] new input has server-side Zod validation
+- [ ] logs and responses contain no secret material
+- [ ] mutations are explicit and not retried when the result is ambiguous
+- [ ] loading, empty, permission, error, and success states remain distinguishable
+- [ ] keyboard and responsive behavior were checked
 
-```text
-src/lib/zg/modules/
-```
-
-After you change a module, markup, or CSS, rebuild the generated files:
-
-```bash
-node build.mjs
-```
-
-This regenerates:
-
-```text
-src/lib/zg/bundle.js
-src/lib/zg/markup.js
-../index.html
-```
-
-> **Do not hand-edit the generated files.**
-
----
-
-## What helps most right now
-
-The most useful contributions at this stage are:
-
-- Token handling and the **Remember / unlock** flow
-- **Upload Merge vs Replace** confirmations
-- Secret scanner false positives / missed patterns
-- Monolith vs Next.js mode drift
-- README / i18n / accessibility fixes
-- Screenshots of the running UI
-
----
-
-## Pull requests
-
-Please keep pull requests:
-
-- **Small and reviewable**
-- Focused on one change
-- Clear about security-sensitive behavior
-
-When relevant, explain the risk around:
-
-- **Token handling**
-- **File overwrites**
-- **Proxy behavior**
-
-### Code style
-
-Match the existing **vanilla-JS** style in `src/lib/zg/modules/`.
-
-> Do not rewrite the UI in React unless we agree that this is the goal.
-
-### Language
-
-English or Russian in the PR description is fine.
-
-If you change UI copy, keep the corresponding strings in both:
-
-- `en`
-- `ru`
-
----
-
-## Before opening a PR
-
-Please check that:
-
-- The project still builds.
-- The generated files have been regenerated with `node build.mjs`.
-- No secrets or credentials were added.
-- Token-related changes have been reviewed carefully.
-- Merge / Replace behavior is still explicit.
-- Both language variants are updated when UI text changes.
-
-Thanks for helping improve ZipToGit Pro.
+By contributing, you agree that your work is provided under the repository's MIT license.
