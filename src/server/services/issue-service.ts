@@ -6,6 +6,7 @@ import { GitHubClient } from "@/server/github/client";
 import { GitHubApiError, mapGitHubError } from "@/server/github/errors";
 import type { ActorDto, CreateIssueInput, IssueCommentDto, IssueDetailDto, IssueSummaryDto, LabelDto, UpdateIssueInput } from "@/shared/contracts/issues";
 import { RepositoryService } from "./repository-service";
+import { requireCapability } from "@/server/authz/capabilities";
 
 const actorSchema = z.object({ login: z.string(), avatar_url: z.string().nullable().optional() });
 const labelSchema = z.object({ name: z.string(), color: z.string().nullable().optional(), description: z.string().nullable().optional() });
@@ -115,7 +116,8 @@ export class IssueService {
   }
 
   async create(owner: string, repo: string, input: CreateIssueInput) {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "createIssue");
     try {
       const result = await this.github.request({
         method: "POST",
@@ -131,7 +133,8 @@ export class IssueService {
   }
 
   async update(owner: string, repo: string, number: number, input: UpdateIssueInput) {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "manageIssues");
     try {
       const result = await this.github.request({
         method: "PATCH",
@@ -162,7 +165,8 @@ export class IssueService {
   }
 
   async addComment(owner: string, repo: string, number: number, body: string) {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "commentOnIssue");
     try {
       const result = await this.github.request({
         method: "POST",

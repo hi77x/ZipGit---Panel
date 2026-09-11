@@ -6,7 +6,9 @@ import { PullMergeBox } from "@/features/pulls/pull-merge-box";
 import { PullThread } from "@/features/pulls/pull-thread";
 import { requireGitHubSession } from "@/server/auth/require-session";
 import { GitHubClient } from "@/server/github/client";
+import { capabilitiesForRepository } from "@/server/authz/capabilities";
 import { PullService, parsePullNumber } from "@/server/services/pull-service";
+import { RepositoryService } from "@/server/services/repository-service";
 import { relativeTime } from "@/lib/format";
 
 export default async function PullDetailPage({ params }: { params: Promise<{ owner: string; repo: string; number: string }> }) {
@@ -15,9 +17,16 @@ export default async function PullDetailPage({ params }: { params: Promise<{ own
   try { pullNumber = parsePullNumber(number); }
   catch { return <ErrorState title="Pull request unavailable" message="The pull request number is not valid."/>; }
   let data: Awaited<ReturnType<PullService["overview"]>> | null = null;
+  let canMerge = false;
+  let canManage = false;
   try {
     const { accessToken } = await requireGitHubSession();
-    data = await new PullService(new GitHubClient(accessToken, crypto.randomUUID())).overview(owner, repo, pullNumber);
+    const github = new GitHubClient(accessToken, crypto.randomUUID());
+    const repository = await new RepositoryService(github).detail(owner, repo);
+    const capabilities = capabilitiesForRepository(repository);
+    canMerge = capabilities.mergePullRequest;
+    canManage = capabilities.managePullRequests;
+    data = await new PullService(github).overview(owner, repo, pullNumber);
   } catch { return <ErrorState title="Pull request unavailable" message="This pull request could not be loaded from GitHub."/>; }
   const { pull, files, truncated, reviews, comments } = data;
   const stateLabel = pull.merged ? "Merged" : pull.draft && pull.state === "open" ? "Draft" : pull.state === "open" ? "Open" : "Closed";
@@ -57,7 +66,7 @@ export default async function PullDetailPage({ params }: { params: Promise<{ own
       </section>
     </div>
     <aside className="stack">
-      <PullMergeBox owner={owner} repo={repo} pull={pull}/>
+      <PullMergeBox owner={owner} repo={repo} pull={pull} canMerge={canMerge} canManage={canManage}/>
     </aside>
   </div>;
 }

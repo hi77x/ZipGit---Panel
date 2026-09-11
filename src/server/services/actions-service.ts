@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GitHubClient } from "@/server/github/client";
 import { GitHubApiError, mapGitHubError } from "@/server/github/errors";
 import { RepositoryService } from "./repository-service";
+import { requireCapability } from "@/server/authz/capabilities";
 import { encodeGitHubSegment, isSafeGitHubRef } from "@/lib/url";
 import { AppError } from "@/shared/contracts/api-error";
 import pLimit from "p-limit";
@@ -51,7 +52,9 @@ export class ActionsService {
   async dispatch(owner: string, repo: string, workflowId: number, input: { ref: string; inputs: Record<string, string> }) {
     if (!Number.isSafeInteger(workflowId) || workflowId <= 0) throw new AppError("WORKFLOW_NOT_FOUND", "Invalid workflow identifier.", 400);
     if (!isSafeGitHubRef(input.ref)) throw new AppError("WORKFLOW_DISPATCH_INVALID", "Choose a valid Git reference.", 400, false, { ref: "Invalid ref" });
-    const branches = await this.repositories.branches(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "runWorkflow");
+    const branches = await this.repositories.branches(owner, repo, false);
     if (!branches.includes(input.ref)) throw new AppError("WORKFLOW_DISPATCH_INVALID", "Choose an existing branch for workflow dispatch.", 400, false, { ref: "Branch not found" });
     const entries = Object.entries(input.inputs);
     if (entries.length > 20 || entries.some(([key, value]) => key.length > 100 || value.length > 1_000)) throw new AppError("WORKFLOW_DISPATCH_INVALID", "Workflow inputs exceed allowed limits.", 400, false, { inputs: "At most 20 compact inputs are allowed" });
@@ -67,6 +70,8 @@ export class ActionsService {
 
   async mutateRun(owner: string, repo: string, runId: number, action: "rerun" | "rerun-failed" | "cancel") {
     if (!Number.isSafeInteger(runId) || runId <= 0) throw new AppError("WORKFLOW_RUN_NOT_FOUND", "Invalid workflow run identifier.", 400);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, action === "cancel" ? "cancelWorkflow" : "runWorkflow");
     const endpoint = action === "rerun" ? "rerun" : action === "rerun-failed" ? "rerun-failed-jobs" : "cancel";
     try {
       await this.github.request({ method: "POST", path: `${this.base(owner, repo)}/runs/${runId}/${endpoint}`, schema: z.unknown(), endpointTemplate: `/repos/{owner}/{repo}/actions/runs/{id}/${endpoint}` });

@@ -4,6 +4,7 @@ import { Badge, Panel, PanelHead } from "@/components/ui/card";
 import { BranchManager } from "@/features/branches/branch-manager";
 import { requireGitHubSession } from "@/server/auth/require-session";
 import { GitHubClient } from "@/server/github/client";
+import { capabilitiesForRepository } from "@/server/authz/capabilities";
 import { BranchService } from "@/server/services/branch-service";
 import { RepositoryService } from "@/server/services/repository-service";
 import { AppError } from "@/shared/contracts/api-error";
@@ -11,11 +12,16 @@ import { AppError } from "@/shared/contracts/api-error";
 export default async function BranchesPage({ params }: { params: Promise<{ owner: string; repo: string }> }) {
   const { owner, repo } = await params;
   let data: { branches: Awaited<ReturnType<BranchService["list"]>>["branches"]; defaultBranch: string } | null = null;
+  let canCreate = false;
+  let canDelete = false;
   let loadError: unknown;
   try {
     const { accessToken } = await requireGitHubSession();
     const github = new GitHubClient(accessToken, crypto.randomUUID());
-    await new RepositoryService(github).assertAccessible(owner, repo);
+    const repository = await new RepositoryService(github).assertAccessible(owner, repo);
+    const capabilities = capabilitiesForRepository(repository);
+    canCreate = capabilities.createBranch;
+    canDelete = capabilities.deleteBranch;
     data = await new BranchService(github).list(owner, repo);
   } catch (error) {
     loadError = error;
@@ -36,7 +42,7 @@ export default async function BranchesPage({ params }: { params: Promise<{ owner
         <a className="button" href={`${base}/compare?base=${encodeURIComponent(data.defaultBranch)}`}><GitCompareArrows/> Compare branches</a>
       </div>
     </div>
-    <BranchManager owner={owner} repo={repo} branches={data.branches} defaultBranch={data.defaultBranch}/>
+    <BranchManager owner={owner} repo={repo} branches={data.branches} defaultBranch={data.defaultBranch} canCreate={canCreate} canDelete={canDelete}/>
     <Panel>
       <PanelHead title="Branch workflow tips" icon={<GitFork/>}/>
       <div className="panel-body stack-sm text-sm muted">

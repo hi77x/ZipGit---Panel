@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GitHubClient } from "@/server/github/client";
 import { GitHubApiError, mapGitHubError } from "@/server/github/errors";
 import { RepositoryService } from "./repository-service";
+import { requireCapability } from "@/server/authz/capabilities";
 import { encodeGitHubSegment, isSafeGitHubRef } from "@/lib/url";
 import { AppError } from "@/shared/contracts/api-error";
 import type { ReleaseDto } from "@/shared/contracts/misc";
@@ -61,7 +62,8 @@ export class ReleaseService {
 
   async create(owner: string, repo: string, input: ReleaseCreateInput): Promise<ReleaseDto> {
     assertSafeTag(input.tagName);
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "manageReleases");
     try {
       const result = await this.github.request({
         method: "POST",
@@ -81,7 +83,8 @@ export class ReleaseService {
   async update(owner: string, repo: string, id: number, input: ReleaseUpdateInput): Promise<ReleaseDto> {
     assertReleaseId(id);
     if (input.tagName !== undefined) assertSafeTag(input.tagName);
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "manageReleases");
     try {
       const result = await this.github.request({
         method: "PATCH",
@@ -101,7 +104,8 @@ export class ReleaseService {
 
   async remove(owner: string, repo: string, id: number): Promise<{ deleted: true }> {
     assertReleaseId(id);
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "manageReleases");
     try {
       await this.github.request({ method: "DELETE", path: `${this.base(owner, repo)}/${id}`, schema: z.unknown(), endpointTemplate: "/repos/{owner}/{repo}/releases/{id}" });
       return { deleted: true };

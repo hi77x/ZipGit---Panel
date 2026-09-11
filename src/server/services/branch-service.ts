@@ -6,6 +6,7 @@ import type { BranchDto } from "@/shared/contracts/content";
 import { GitHubClient } from "@/server/github/client";
 import { GitHubApiError, mapGitHubError } from "@/server/github/errors";
 import { RepositoryService } from "./repository-service";
+import { requireCapability } from "@/server/authz/capabilities";
 
 const branchSchema = z.object({
   name: z.string(),
@@ -41,7 +42,8 @@ export class BranchService {
   }
 
   async create(owner: string, repo: string, input: { name: string; from: string }) {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "createBranch");
     const name = validateBranchName(input.name);
     if (!isSafeGitHubRef(input.from)) throw new AppError("VALIDATION_ERROR", "Choose a valid base branch or commit.", 400, false, { from: "Invalid base reference" });
     let sha: string;
@@ -75,7 +77,8 @@ export class BranchService {
   }
 
   async remove(owner: string, repo: string, nameInput: string) {
-    const detail = await this.repositories.detail(owner, repo);
+    const detail = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(detail, "deleteBranch");
     const name = validateBranchName(nameInput);
     if (name === detail.defaultBranch) throw new AppError("BRANCH_WRITE_FORBIDDEN", "The default branch cannot be deleted.", 403);
     try {

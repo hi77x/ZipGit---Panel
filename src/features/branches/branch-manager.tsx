@@ -10,7 +10,7 @@ import { useToast } from "@/components/feedback/toast-provider";
 import { apiRequest } from "@/features/api-client";
 import type { BranchDto } from "@/shared/contracts/content";
 
-export function BranchManager({ owner, repo, branches, defaultBranch }: { owner: string; repo: string; branches: BranchDto[]; defaultBranch: string }) {
+export function BranchManager({ owner, repo, branches, defaultBranch, canCreate, canDelete }: { owner: string; repo: string; branches: BranchDto[]; defaultBranch: string; canCreate: boolean; canDelete: boolean }) {
   const router = useRouter();
   const toast = useToast();
   const [creating, setCreating] = useState(false);
@@ -51,8 +51,8 @@ export function BranchManager({ owner, repo, branches, defaultBranch }: { owner:
   }
 
   return <Panel>
-    <PanelHead title={`${branches.length} branch${branches.length === 1 ? "" : "es"}`} icon={<GitBranch/>} actions={<Button size="sm" variant={creating ? "ghost" : "primary"} onClick={() => setCreating((value) => !value)}>{creating ? "Cancel" : <><Plus/>New branch</>}</Button>}/>
-    {creating ? <div className="panel-body" style={{ borderBottom: "1px solid var(--border)" }}>
+    <PanelHead title={`${branches.length} branch${branches.length === 1 ? "" : "es"}`} icon={<GitBranch/>} actions={canCreate ? <Button size="sm" variant={creating ? "ghost" : "primary"} onClick={() => setCreating((value) => !value)}>{creating ? "Cancel" : <><Plus/>New branch</>}</Button> : undefined}/>
+    {creating && canCreate ? <div className="panel-body" style={{ borderBottom: "1px solid var(--border)" }}>
       <div className="form-grid" style={{ margin: 0 }}>
         <label className="field"><span>Branch name</span><input value={name} onChange={(event) => setName(event.target.value)} placeholder="feature/refactor-auth" autoFocus/></label>
         <label className="field"><span>Create from</span>
@@ -79,7 +79,7 @@ export function BranchManager({ owner, repo, branches, defaultBranch }: { owner:
             <div className="row-actions">
               <Link className="button button-sm" href={`${base}/code?ref=${encodeURIComponent(branch.name)}`}><Terminal/>Code</Link>
               <Link className="button button-sm" href={`${base}/compare?base=${encodeURIComponent(defaultBranch)}&head=${encodeURIComponent(branch.name)}`}><GitCompareArrows/>Compare</Link>
-              {!branch.isDefault ? <Button size="sm" variant="danger" disabled={pending} onClick={() => remove(branch.name)} aria-label={`Delete ${branch.name}`}><Trash2/>Delete</Button> : null}
+              {!branch.isDefault && canDelete ? <Button size="sm" variant="danger" disabled={pending} onClick={() => remove(branch.name)} aria-label={`Delete ${branch.name}`}><Trash2/>Delete</Button> : null}
             </div>
           </td>
         </tr>)}</tbody>

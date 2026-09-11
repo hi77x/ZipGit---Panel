@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GitHubClient } from "@/server/github/client";
 import { GitHubApiError, mapGitHubError } from "@/server/github/errors";
 import { RepositoryService } from "./repository-service";
+import { requireCapability } from "@/server/authz/capabilities";
 import { encodeGitHubSegment } from "@/lib/url";
 import { AppError } from "@/shared/contracts/api-error";
 
@@ -36,7 +37,9 @@ export class PagesService {
   }
 
   async configure(owner: string, repo: string, input: { mode: "branch" | "workflow"; branch?: string; path?: "/" | "/docs" }, update = false) {
-    const branches = await this.repositories.branches(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "managePages");
+    const branches = await this.repositories.branches(owner, repo, false);
     if (input.mode === "branch" && (!input.branch || !branches.includes(input.branch) || !input.path)) {
       throw new AppError("PAGES_INVALID_SOURCE", "Choose an existing branch and / or /docs.", 400, false, { branch: "Invalid branch or folder" });
     }
@@ -56,7 +59,8 @@ export class PagesService {
   }
 
   async build(owner: string, repo: string) {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "managePages");
     try {
       await this.github.request({ method: "POST", path: `/repos/${encodeGitHubSegment(owner)}/${encodeGitHubSegment(repo)}/pages/builds`, schema: z.unknown(), endpointTemplate: "/repos/{owner}/{repo}/pages/builds" });
       return this.get(owner, repo);

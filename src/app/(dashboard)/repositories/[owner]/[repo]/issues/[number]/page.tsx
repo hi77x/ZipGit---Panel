@@ -7,16 +7,22 @@ import { IssueThread } from "@/features/issues/issue-thread";
 import { relativeTime } from "@/lib/format";
 import { requireGitHubSession } from "@/server/auth/require-session";
 import { GitHubClient } from "@/server/github/client";
+import { capabilitiesForRepository } from "@/server/authz/capabilities";
 import { IssueService } from "@/server/services/issue-service";
+import { RepositoryService } from "@/server/services/repository-service";
 
 export default async function IssuePage({ params }: { params: Promise<{ owner: string; repo: string; number: string }> }) {
   const { owner, repo, number } = await params;
   const id = Number(number);
   if (!Number.isSafeInteger(id) || id <= 0) notFound();
   let data: Awaited<ReturnType<IssueService["detail"]>> | null = null;
+  let canManage = false;
   try {
     const { accessToken } = await requireGitHubSession();
-    data = await new IssueService(new GitHubClient(accessToken, crypto.randomUUID())).detail(owner, repo, id);
+    const github = new GitHubClient(accessToken, crypto.randomUUID());
+    const repository = await new RepositoryService(github).detail(owner, repo);
+    canManage = capabilitiesForRepository(repository).manageIssues;
+    data = await new IssueService(github).detail(owner, repo, id);
   } catch {
     return <ErrorState message="This issue could not be loaded from GitHub."/>;
   }
@@ -41,7 +47,7 @@ export default async function IssuePage({ params }: { params: Promise<{ owner: s
       <div className="thread-body" style={{ whiteSpace: "pre-wrap" }}>{issue.body || "No description provided."}</div>
     </section>
     <IssueThread comments={data.comments}/>
-    <IssueControls owner={owner} repo={repo} issue={issue}/>
+    <IssueControls owner={owner} repo={repo} issue={issue} canManage={canManage}/>
     <IssueCommentBox owner={owner} repo={repo} number={issue.number}/>
   </article>;
 }

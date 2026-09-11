@@ -7,6 +7,7 @@ import type { CommitRefDto, TreeEntry, WriteFileInput } from "@/shared/contracts
 import { GitHubClient } from "@/server/github/client";
 import { GitHubApiError, mapGitHubError } from "@/server/github/errors";
 import { RepositoryService } from "./repository-service";
+import { requireCapability } from "@/server/authz/capabilities";
 
 const treeEntrySchema = z.object({
   path: z.string().optional(),
@@ -139,7 +140,8 @@ export class ContentService {
   async write(owner: string, repo: string, input: WriteFileInput) {
     const path = validateContentPath(input.path);
     const message = validateCommitMessage(input.message);
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "writeCode");
     if (!isSafeGitHubRef(input.branch)) throw new AppError("VALIDATION_ERROR", "Choose a valid branch.", 400, false, { branch: "Invalid branch" });
     const body: { message: string; content: string; branch: string; sha?: string } = {
       message,
@@ -167,7 +169,8 @@ export class ContentService {
   async remove(owner: string, repo: string, input: { path: string; message: string; branch: string; sha: string }) {
     const path = validateContentPath(input.path);
     const message = validateCommitMessage(input.message);
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "writeCode");
     if (!isSafeGitHubRef(input.branch)) throw new AppError("VALIDATION_ERROR", "Choose a valid branch.", 400, false, { branch: "Invalid branch" });
     if (!input.sha.trim()) throw new AppError("VALIDATION_ERROR", "The file revision is required to delete it.", 400, false, { sha: "Missing revision" });
     try {

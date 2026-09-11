@@ -7,7 +7,7 @@ import { useToast } from "@/components/feedback/toast-provider";
 import { apiRequest } from "@/features/api-client";
 import type { IssueCommentDto, IssueSummaryDto, UpdateIssueInput } from "@/shared/contracts/issues";
 
-export function IssueControls({ owner, repo, issue }: { owner: string; repo: string; issue: IssueSummaryDto }) {
+export function IssueControls({ owner, repo, issue, canManage }: { owner: string; repo: string; issue: IssueSummaryDto; canManage: boolean }) {
   const [pending, setPending] = useState(false), [reason, setReason] = useState<"completed" | "not_planned">("completed"), [error, setError] = useState("");
   const toast = useToast();
   const router = useRouter();
@@ -25,6 +25,7 @@ export function IssueControls({ owner, repo, issue }: { owner: string; repo: str
       setPending(false);
     }
   }
+  if (!canManage) return null;
   return <div className="button-row">
     {error ? <span className="field-error">{error}</span> : null}
     {issue.state === "open" ? <>

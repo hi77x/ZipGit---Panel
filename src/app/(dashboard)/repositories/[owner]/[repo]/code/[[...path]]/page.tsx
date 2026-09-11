@@ -2,6 +2,7 @@ import { Explorer } from "@/features/code-explorer/explorer";
 import { isSafeGitHubRef } from "@/lib/url";
 import { requireGitHubSession } from "@/server/auth/require-session";
 import { GitHubClient } from "@/server/github/client";
+import { capabilitiesForRepository } from "@/server/authz/capabilities";
 import { BranchService } from "@/server/services/branch-service";
 import { ContentService } from "@/server/services/content-service";
 import { RepositoryService } from "@/server/services/repository-service";
@@ -14,6 +15,7 @@ export default async function CodePage({ params, searchParams }: { params: Promi
   const github = new GitHubClient(accessToken, crypto.randomUUID());
   const repositories = new RepositoryService(github);
   const detail = await repositories.detail(owner, repo);
+  const canWrite = capabilitiesForRepository(detail).writeCode;
   const ref = requestedRef && isSafeGitHubRef(requestedRef) ? requestedRef : detail.defaultBranch;
   const content = new ContentService(github, repositories);
   let branches: BranchDto[] = [];
@@ -50,6 +52,7 @@ export default async function CodePage({ params, searchParams }: { params: Promi
     initialPath={filePath}
     initialFile={file}
     initialFileError={fileError}
+    canWrite={canWrite}
   />;
 }
 

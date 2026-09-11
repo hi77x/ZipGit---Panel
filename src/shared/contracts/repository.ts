@@ -8,6 +8,12 @@ export const repositoryQuerySchema = z.object({
   perPage: z.coerce.number().int().min(1).max(100).default(30)
 });
 
+export const repositoryPermissionSchema = z.object({
+  admin: z.boolean().optional(), maintain: z.boolean().optional(), push: z.boolean().optional(), triage: z.boolean().optional(), pull: z.boolean().optional()
+});
+
+export type RepositoryPermissionFlags = z.infer<typeof repositoryPermissionSchema>;
+
 export const repositorySchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -26,6 +32,7 @@ export const repositorySchema = z.object({
   fork: z.boolean().optional(),
   homepage: z.string().nullable().optional(),
   size: z.number().optional(),
+  permissions: repositoryPermissionSchema.optional(),
   license: z.object({ spdx_id: z.string().nullable(), name: z.string().nullable() }).nullable().optional(),
   created_at: z.string().optional(),
   pushed_at: z.string().nullable().optional(),
@@ -54,6 +61,7 @@ export type RepositoryDto = {
   sizeKb: number;
   license: string | null;
   licenseName: string | null;
+  permissions: RepositoryPermissionFlags | null;
   createdAt: string | null;
   pushedAt: string | null;
   updatedAt: string;

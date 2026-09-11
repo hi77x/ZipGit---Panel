@@ -24,9 +24,10 @@ export type ExplorerProps = {
   initialPath: string | null;
   initialFile: FileContentDto | null;
   initialFileError: string | null;
+  canWrite: boolean;
 };
 
-export function Explorer({ owner, repo, initialRef, defaultBranch, initialBranches, initialEntries, initialTreeError, initialPath, initialFile, initialFileError }: ExplorerProps) {
+export function Explorer({ owner, repo, initialRef, defaultBranch, initialBranches, initialEntries, initialTreeError, initialPath, initialFile, initialFileError, canWrite }: ExplorerProps) {
   const router = useRouter();
   const toast = useToast();
   const [editing, setEditing] = useState(false);
@@ -89,8 +90,9 @@ export function Explorer({ owner, repo, initialRef, defaultBranch, initialBranch
       <span className="code-meta">{formatBytes(file.size)}{file.truncated ? " · preview limited" : ""}</span>
       <div className="row-actions">
         <Button size="sm" type="button" onClick={() => void copyRawLink()}><Copy/> Copy raw link</Button>
-        {allowEdit && file.decoded ? <Button size="sm" type="button" variant="primary" onClick={() => setEditing(true)}><Pencil/> Edit</Button> : null}
-        <Button size="sm" type="button" variant="danger" loading={deleting} onClick={() => void deleteFile()}><Trash2/> Delete</Button>
+        {!canWrite ? <span className="badge" title="Your GitHub role does not allow file changes">read-only</span> : null}
+        {allowEdit && canWrite && file.decoded ? <Button size="sm" type="button" variant="primary" onClick={() => setEditing(true)}><Pencil/> Edit</Button> : null}
+        {canWrite ? <Button size="sm" type="button" variant="danger" loading={deleting} onClick={() => void deleteFile()}><Trash2/> Delete</Button> : null}
       </div>
     </header>;
   }
@@ -99,8 +101,8 @@ export function Explorer({ owner, repo, initialRef, defaultBranch, initialBranch
     <aside className="explorer-sidebar">
       <div className="explorer-sidebar-head">
         <BranchMenu owner={owner} repo={repo} current={initialRef} defaultBranch={defaultBranch} branches={initialBranches} onSelect={switchBranch}/>
-        <Button size="sm" type="button" onClick={() => setCreating((value) => !value)} aria-expanded={creating}><FilePlus2/> New file</Button>
-        {creating ? <NewFileForm owner={owner} repo={repo} branch={initialRef} onClose={() => setCreating(false)} onCreated={fileCreated}/> : null}
+        {canWrite ? <Button size="sm" type="button" onClick={() => setCreating((value) => !value)} aria-expanded={creating}><FilePlus2/> New file</Button> : null}
+        {creating && canWrite ? <NewFileForm owner={owner} repo={repo} branch={initialRef} onClose={() => setCreating(false)} onCreated={fileCreated}/> : null}
       </div>
       {initialEntries ? <FileTree entries={initialEntries} activePath={initialPath} onSelect={selectFile}/> : initialTreeError ? <div className="tree"><ErrorState message={initialTreeError}/></div> : null}
     </aside>

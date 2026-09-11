@@ -46,8 +46,8 @@ export class RepositoryService {
     return result.data.map(({ name }) => name);
   }
 
-  async assertAccessible(owner: string, repo: string): Promise<void> {
-    await this.detail(owner, repo);
+  async assertAccessible(owner: string, repo: string): Promise<RepositoryDto> {
+    return this.detail(owner, repo);
   }
 
   async listStarred(page: number, perPage: number) {
@@ -91,6 +91,7 @@ function toRepository(repo: z.infer<typeof repositorySchema>): RepositoryDto {
     homepage: repo.homepage ?? null, sizeKb: repo.size ?? 0,
     license: repo.license?.spdx_id && repo.license.spdx_id !== "NOASSERTION" ? repo.license.spdx_id : null,
     licenseName: repo.license?.name ?? null,
+    permissions: repo.permissions ?? null,
     createdAt: repo.created_at ?? null, pushedAt: repo.pushed_at ?? null,
     updatedAt: repo.updated_at, defaultBranch: repo.default_branch, url: repo.html_url, avatarUrl: repo.owner.avatar_url
   };

@@ -1,5 +1,6 @@
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import type { RepositoryPermissionFlags } from "@/shared/contracts/repository";
 
 export type FaultRule = {
   method?: string;
@@ -12,7 +13,7 @@ export type FaultRule = {
   drop?: boolean;
 };
 
-export type MockRepository = { owner: string; name: string; defaultBranch: string; refs: Map<string, string> };
+export type MockRepository = { owner: string; name: string; defaultBranch: string; refs: Map<string, string>; permissions: RepositoryPermissionFlags; archived: boolean };
 
 export type GitHubFaultState = {
   repositories: Map<string, MockRepository>;
@@ -41,6 +42,8 @@ export class GitHubFaultServer {
   deletableRepositories = true;
   blobFailureAfter: number | null = null;
   accessToken = "test-token";
+  defaultPermissions: RepositoryPermissionFlags = { admin: true, maintain: true, push: true, triage: true, pull: true };
+  defaultArchived = false;
   private readonly rules: Array<FaultRule & { remaining: number }> = [];
   private server: Server | null = null;
   private baseUrl = "";
@@ -96,7 +99,7 @@ export class GitHubFaultServer {
     if (repositoryMatch && method === "GET") {
       const repository = this.find(repositoryMatch[1] ?? "", repositoryMatch[2] ?? "");
       if (!repository) return this.respond(response, 404, { message: "Not Found" });
-      return this.respond(response, 200, { id: 1, name: repository.name, full_name: `${repository.owner}/${repository.name}`, private: true, visibility: "private", description: null, language: null, stargazers_count: 0, forks_count: 0, updated_at: new Date().toISOString(), default_branch: repository.defaultBranch, html_url: `https://github.com/${repository.owner}/${repository.name}`, owner: { login: repository.owner, avatar_url: "https://avatars.githubusercontent.com/u/1?v=4" } });
+      return this.respond(response, 200, { id: 1, name: repository.name, full_name: `${repository.owner}/${repository.name}`, private: true, visibility: "private", description: null, language: null, stargazers_count: 0, forks_count: 0, archived: repository.archived, permissions: repository.permissions, updated_at: new Date().toISOString(), default_branch: repository.defaultBranch, html_url: `https://github.com/${repository.owner}/${repository.name}`, owner: { login: repository.owner, avatar_url: "https://avatars.githubusercontent.com/u/1?v=4" } });
     }
     if (repositoryMatch && method === "PATCH") {
       const repository = this.find(repositoryMatch[1] ?? "", repositoryMatch[2] ?? "");
@@ -116,7 +119,7 @@ export class GitHubFaultServer {
     if (method === "POST" && path === "/user/repos") {
       const body = await this.readJson(request);
       const key = `octo/${String(body.name)}`;
-      const repository: MockRepository = { owner: "octo", name: String(body.name), defaultBranch: "main", refs: new Map() };
+      const repository: MockRepository = { owner: "octo", name: String(body.name), defaultBranch: "main", refs: new Map(), permissions: this.defaultPermissions, archived: this.defaultArchived };
       this.state.repositories.set(key, repository);
       return this.respond(response, 201, { full_name: key, html_url: `https://github.com/${key}`, name: repository.name, owner: { login: repository.owner } });
     }
@@ -157,6 +160,11 @@ export class GitHubFaultServer {
       repository.refs.delete(ref);
       this.state.deletedRefs.push(ref);
       return this.respond(response, 204);
+    }
+
+    const contentsMatch = /^\/repos\/([^/]+)\/([^/]+)\/contents\/(.+)$/.exec(path);
+    if (contentsMatch && (method === "PUT" || method === "DELETE")) {
+      return this.respond(response, 200, { content: { sha: "file-sha-0001" }, commit: { sha: "commit-sha-1234567", message: "Update", author: null } });
     }
 
     return this.respond(response, 404, { message: `Unhandled mock route ${method} ${path}` });

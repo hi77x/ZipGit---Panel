@@ -20,7 +20,7 @@ const mergeableLabels: Record<string, string> = {
   has_hooks: "Pre-receive hooks must pass", unknown: "GitHub has not finished computing mergeability"
 };
 
-export function PullMergeBox({ owner, repo, pull }: { owner: string; repo: string; pull: PullDetailDto }) {
+export function PullMergeBox({ owner, repo, pull, canMerge, canManage }: { owner: string; repo: string; pull: PullDetailDto; canMerge: boolean; canManage: boolean }) {
   const [method, setMethod] = useState<MergeMethod>("merge"), [deleteBranch, setDeleteBranch] = useState(true), [commitTitle, setCommitTitle] = useState(""), [commitMessage, setCommitMessage] = useState("");
   const [pending, setPending] = useState<"merge" | "state" | null>(null), [error, setError] = useState(""), [merged, setMerged] = useState(false);
   const toast = useToast();
@@ -78,11 +78,12 @@ export function PullMergeBox({ owner, repo, pull }: { owner: string; repo: strin
       <label className="field"><span>Commit title (optional)</span><input value={commitTitle} maxLength={256} disabled={pending !== null} placeholder="Leave blank for GitHub's default" onChange={(event) => setCommitTitle(event.target.value)}/></label>
       <label className="field"><span>Commit message (optional)</span><textarea value={commitMessage} maxLength={65536} rows={3} disabled={pending !== null} onChange={(event) => setCommitMessage(event.target.value)}/></label>
       <label className="cluster" style={{ gap: 8, fontSize: ".82rem" }}><input type="checkbox" checked={deleteBranch} disabled={pending !== null} onChange={(event) => setDeleteBranch(event.target.checked)}/>Delete the head branch after merging</label>
-      <Button variant="primary" loading={pending === "merge"} disabled={disabled} onClick={() => void merge()}><GitMerge/> {activeMethod?.action ?? "Merge pull request"}</Button>
+      <Button variant="primary" loading={pending === "merge"} disabled={disabled || !canMerge} onClick={() => void merge()}><GitMerge/> {activeMethod?.action ?? "Merge pull request"}</Button>
+      {!canMerge ? <p className="muted text-xs">Your GitHub role on this repository does not allow merging pull requests.</p> : null}
       {pull.draft ? <p className="muted text-xs">Mark this draft as ready for review before merging.</p> : null}
-      <Button variant="danger" loading={pending === "state"} disabled={pending === "merge"} onClick={() => void toggleState()}><GitPullRequestClosed/> Close pull request</Button>
+      {canManage ? <Button variant="danger" loading={pending === "state"} disabled={pending === "merge"} onClick={() => void toggleState()}><GitPullRequestClosed/> Close pull request</Button> : null}
     </> : null}
-    {!isMerged && pull.state === "closed" ? <Button variant="primary" loading={pending === "state"} disabled={pending === "merge"} onClick={() => void toggleState()}><LockOpen/> Reopen pull request</Button> : null}
+    {!isMerged && pull.state === "closed" && canManage ? <Button variant="primary" loading={pending === "state"} disabled={pending === "merge"} onClick={() => void toggleState()}><LockOpen/> Reopen pull request</Button> : null}
   </section>;
 }
 

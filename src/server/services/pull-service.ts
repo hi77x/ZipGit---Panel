@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GitHubClient } from "@/server/github/client";
 import { GitHubApiError, mapGitHubError } from "@/server/github/errors";
 import { RepositoryService } from "./repository-service";
+import { requireCapability } from "@/server/authz/capabilities";
 import { encodeGitHubSegment } from "@/lib/url";
 import { AppError } from "@/shared/contracts/api-error";
 import type { ActorDto, IssueCommentDto } from "@/shared/contracts/issues";
@@ -97,7 +98,8 @@ export class PullService {
   }
 
   async create(owner: string, repo: string, input: CreatePullInput): Promise<PullDetailDto> {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "createPullRequest");
     try {
       const result = await this.github.request({
         method: "POST",
@@ -119,7 +121,8 @@ export class PullService {
   }
 
   async createComment(owner: string, repo: string, number: number, input: PullCommentInput) {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "reviewPullRequest");
     try {
       if (input.event) {
         const result = await this.github.request({
@@ -151,7 +154,8 @@ export class PullService {
   }
 
   async merge(owner: string, repo: string, number: number, input: MergePullInput): Promise<MergeResultDto> {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "mergePullRequest");
     const result = await this.requestMerge(owner, repo, number, input);
     let branchDeleted = false;
     if (result.merged && input.deleteBranch) {
@@ -161,7 +165,8 @@ export class PullService {
   }
 
   async setState(owner: string, repo: string, number: number, state: "open" | "closed"): Promise<PullDetailDto> {
-    await this.repositories.assertAccessible(owner, repo);
+    const repository = await this.repositories.assertAccessible(owner, repo);
+    requireCapability(repository, "managePullRequests");
     try {
       const result = await this.github.request({
         method: "PATCH",
