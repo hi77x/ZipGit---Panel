@@ -19,6 +19,7 @@ export class GitHubApiError extends Error {
 
 export function mapGitHubError(error: GitHubApiError, context?: AppErrorCode): AppError {
   const { status, remaining, resetAt } = error.details;
+  if (status === -2) return new AppError("GITHUB_SCHEMA_MISMATCH", "GitHub returned an unexpected response shape.", 502, true);
   if (status === 0) return new AppError("GITHUB_TIMEOUT", "GitHub did not respond before the request timed out.", 504, true);
   if (status === 401) return new AppError("AUTH_RECONNECT_REQUIRED", "Your GitHub authorization expired. Reconnect to continue.", 401);
   if ((status === 403 && remaining === 0) || status === 429) {

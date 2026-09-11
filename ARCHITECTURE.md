@@ -68,7 +68,11 @@ Any cap that is hit sets `truncated: true` in the report.
 
 ## Import transaction
 
-The importer performs a complete metadata preflight before creating a repository. It then creates blobs with bounded concurrency, a root tree, a parentless root commit, a branch ref, and the default-branch setting. No per-file commits are used. If a post-creation step fails, the repository is retained and returned as a structured partial result.
+The importer performs a complete metadata and content preflight before creating a repository. It then runs a typed state machine — `RECEIVED → PREFLIGHTED → AUTHORIZED → REPOSITORY_CREATED → BLOBS_WRITING → TREE_CREATED → COMMIT_CREATED → REF_PUBLISHED → DEFAULT_BRANCH_CONFIGURED → COMPLETED` — with a stable `operationId` attached to every stage log.
+
+The visible branch is the publication boundary: blobs, tree, and commit are written first, and the branch ref is created last. If a later stage fails, the ref created by this operation is deleted, queued blob writes are cancelled, and the result is reported as `compensated` (repository was removed), `cleanup_incomplete` (repository shell remains), or `failed` (nothing was created). Failed results carry safe remediation text and never claim a rollback that did not happen.
+
+Repository shell deletion is disabled by default because it requires a broad `delete_repo` scope. Operators can opt in with `REPODECK_ALLOW_REPOSITORY_CLEANUP=true`, and cleanup is still reported honestly when the token cannot delete.
 
 ## Rendering engines
 

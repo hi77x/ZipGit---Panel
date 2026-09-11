@@ -10,7 +10,7 @@ describe("ZIP path policy", () => {
     expect(() => assertNoCollisions(["README.md", "Readme.md"])).toThrow(/colliding/);
     expect(() => assertNoCollisions(["src/a.ts", "src/a.ts"])).toThrow(/colliding/);
   });
-  it("blocks credential filenames but allows examples", () => {
+  it("identifies high-risk credential filenames but allows examples", () => {
     expect(isPotentialSecret(".env.production")).toBe(true);
     expect(isPotentialSecret("keys/id_ed25519")).toBe(true);
     expect(isPotentialSecret(".env.example")).toBe(false);

@@ -23,8 +23,7 @@ export async function POST(request: Request) {
       const parsed = importFieldsSchema.safeParse(fields);
       if (!parsed.success) throw new AppError("VALIDATION_ERROR", "Check the import form values.", 400, false, Object.fromEntries(parsed.error.issues.map((issue) => [String(issue.path[0] ?? "form"), issue.message])));
       const github = await githubFor(context);
-      const result = await new ImportService(github).execute(archivePath, parsed.data);
-      syncRateLimit(context, github);
+      const result = await new ImportService(github).execute(archivePath, parsed.data).finally(() => syncRateLimit(context, github));
       return result;
     } finally {
       await fs.rm(tempDir, { recursive: true, force: true });

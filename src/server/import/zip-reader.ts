@@ -4,7 +4,7 @@ import type { Readable } from "node:stream";
 import yauzl, { type Entry, type ZipFile } from "yauzl";
 import { AppError } from "@/shared/contracts/api-error";
 import { importLimits } from "./constants";
-import { assertNoCollisions, generatedReason, isForbiddenGitPath, isPotentialSecret, normalizeZipPath, safePath, stripSingleRoot } from "./path-policy";
+import { assertNoCollisions, generatedReason, isForbiddenGitPath, normalizeZipPath, safePath, stripSingleRoot } from "./path-policy";
 
 export type ZipImportEntry = { entry: Entry; sourcePath: string; path: string; mode: "100644" | "100755" };
 export type ZipPreflight = {
@@ -43,7 +43,6 @@ export class ZipReader {
         if (entry.uncompressedSize > limits.maxSingleFileBytes) throw new AppError("FILE_TOO_LARGE", `File exceeds the 50 MiB import limit: ${safePath(path)}. Remove it or use Git LFS separately.`, 400);
         if (uncompressed > limits.maxUncompressedBytes) throw new AppError("ZIP_UNCOMPRESSED_TOO_LARGE", "Archive expands beyond the 250 MiB limit.", 400);
         if (isForbiddenGitPath(path)) throw new AppError("UNSAFE_ZIP_PATH", `.git content is not allowed: ${safePath(path)}`, 400);
-        if (isPotentialSecret(path)) throw new AppError("POTENTIAL_SECRET_DETECTED", `Potential credential file detected: ${safePath(path)}. Remove it from the archive.`, 400);
         const reason = options.excludeGenerated ? generatedReason(path) : null;
         if (reason) excluded.push({ path: safePath(path), reason });
         else accepted.push({ entry, sourcePath: path, path, mode: unixMode & 0o111 ? "100755" : "100644" });

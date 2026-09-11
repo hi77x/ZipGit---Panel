@@ -14,7 +14,13 @@ export const serverEnvSchema = z.object({
   IMPORT_MAX_ZIP_BYTES: positiveInt(100 * 1024 * 1024),
   IMPORT_MAX_UNCOMPRESSED_BYTES: positiveInt(250 * 1024 * 1024),
   IMPORT_MAX_FILES: positiveInt(5_000),
-  IMPORT_MAX_SINGLE_FILE_BYTES: positiveInt(50 * 1024 * 1024)
+  IMPORT_MAX_SINGLE_FILE_BYTES: positiveInt(50 * 1024 * 1024),
+  IMPORT_MAX_SCAN_FILES: positiveInt(400),
+  IMPORT_MAX_SCAN_FILE_BYTES: positiveInt(512 * 1024),
+  IMPORT_MAX_SCAN_BYTES: positiveInt(8 * 1024 * 1024),
+  IMPORT_MAX_SCAN_FINDINGS: positiveInt(200),
+  REPODECK_ALLOW_REPOSITORY_CLEANUP: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+  REPODECK_COMMIT_SHA: z.string().max(64).optional()
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

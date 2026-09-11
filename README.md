@@ -213,8 +213,9 @@ Every response uses the same envelope with `ok`, `data`, `requestId`, and `rateL
 - The GitHub access token lives only in the encrypted Auth.js JWT cookie and server request context. It is never returned by `/api/auth/session`, embedded in React props, or written to browser storage.
 - Every route is an allowlisted BFF handler with Zod validation, repository accessibility checks, and typed errors.
 - Nonce-based CSP with `strict-dynamic`, `frame-ancestors 'none'`, HSTS in production, and no permissive wildcards.
-- ZIP import rejects traversal, absolute paths, NUL bytes, collisions, symlinks, encrypted entries, `.git/**`, and credential filenames before GitHub is mutated.
-- Secret findings are masked server-side; raw credentials are never sent to the browser.
+- ZIP import rejects traversal, absolute paths, NUL bytes, collisions, symlinks, encrypted entries, and `.git/**` before GitHub is mutated, then scans file contents for credentials before creating anything.
+- Import is failure-atomic: the branch ref is published only after every Git object exists, and a failed operation either removes what it created or reports `cleanup_incomplete` with exact remediation. Repository deletion is opt-in via `REPODECK_ALLOW_REPOSITORY_CLEANUP`, never a required scope.
+- Secret findings are masked server-side; raw credentials are never sent to the browser, logs, or traces.
 
 ## Validation
 
