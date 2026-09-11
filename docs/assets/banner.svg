@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" role="img" aria-label="RepoDeck — mission control for your GitHub">
+  <defs>
+    <radialGradient id="glow" cx="62%" cy="18%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.13"/>
+      <stop offset="55%" stop-color="#7aa2ff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#050506" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="logo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#c9cdd6"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="420" rx="0" fill="#050506"/>
+  <rect width="1280" height="420" fill="url(#glow)"/>
+  <g opacity="0.5">
+    <path d="M0 105 H1280" stroke="#101116" stroke-width="1"/>
+    <path d="M0 210 H1280" stroke="#101116" stroke-width="1"/>
+    <path d="M0 315 H1280" stroke="#101116" stroke-width="1"/>
+  </g>
+  <g transform="translate(80 118)">
+    <rect x="0" y="0" width="72" height="72" rx="18" fill="url(#logo)"/>
+    <g transform="translate(18 18)" fill="none" stroke="#060608" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 4 L30 10 L18 16 L6 10 Z"/>
+      <path d="M6 16 L18 22 L30 16"/>
+      <path d="M6 22 L18 28 L30 22"/>
+    </g>
+    <text x="96" y="46" font-family="ui-sans-serif, -apple-system, 'Segoe UI', sans-serif" font-size="52" font-weight="700" fill="#f7f8fa" letter-spacing="-1.5">RepoDeck</text>
+    <text x="98" y="86" font-family="ui-sans-serif, -apple-system, 'Segoe UI', sans-serif" font-size="22" font-weight="500" fill="#8a8f9b">Mission control for your GitHub.</text>
+    <g font-family="ui-sans-serif, -apple-system, 'Segoe UI', sans-serif" font-size="14" font-weight="600">
+      <g transform="translate(98 118)">
+        <rect x="0" y="0" width="168" height="34" rx="17" fill="#0b0c0f" stroke="#2b2f3a"/>
+        <circle cx="18" cy="17" r="4" fill="#34d399"/>
+        <text x="32" y="22" fill="#c9cdd6">Code explorer</text>
+      </g>
+      <g transform="translate(278 118)">
+        <rect x="0" y="0" width="186" height="34" rx="17" fill="#0b0c0f" stroke="#2b2f3a"/>
+        <circle cx="18" cy="17" r="4" fill="#7aa2ff"/>
+        <text x="32" y="22" fill="#c9cdd6">Review-grade diffs</text>
+      </g>
+      <g transform="translate(476 118)">
+        <rect x="0" y="0" width="172" height="34" rx="17" fill="#0b0c0f" stroke="#2b2f3a"/>
+        <circle cx="18" cy="17" r="4" fill="#fbbf24"/>
+        <text x="32" y="22" fill="#c9cdd6">Secret scanner</text>
+      </g>
+      <g transform="translate(660 118)">
+        <rect x="0" y="0" width="146" height="34" rx="17" fill="#0b0c0f" stroke="#2b2f3a"/>
+        <circle cx="18" cy="17" r="4" fill="#ffffff"/>
+        <text x="32" y="22" fill="#c9cdd6">Self-hosted</text>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(760 60)">
+    <g transform="rotate(-5 0 0)">
+      <rect x="0" y="0" width="440" height="180" rx="18" fill="#0b0c0f" stroke="#1d1f27"/>
+      <rect x="0" y="0" width="440" height="44" rx="18" fill="#101116"/>
+      <rect x="0" y="22" width="440" height="22" fill="#101116"/>
+      <circle cx="24" cy="22" r="5" fill="#f87171"/>
+      <circle cx="42" cy="22" r="5" fill="#fbbf24"/>
+      <circle cx="60" cy="22" r="5" fill="#34d399"/>
+      <text x="84" y="27" font-family="ui-monospace, Consolas, monospace" font-size="13" fill="#8a8f9b">lib/secret-rules.ts</text>
+      <rect x="20" y="60" width="400" height="18" rx="4" fill="#0f1a14"/>
+      <text x="30" y="73" font-family="ui-monospace, Consolas, monospace" font-size="12.5" fill="#9fd8a6">+ aws-access-key · AKIA••••••••QPNMLK</text>
+      <rect x="20" y="84" width="400" height="18" rx="4" fill="#0f1a14"/>
+      <text x="30" y="97" font-family="ui-monospace, Consolas, monospace" font-size="12.5" fill="#9fd8a6">+ github-token · ghp_••••••••••••</text>
+      <rect x="20" y="108" width="400" height="18" rx="4" fill="#1a1012"/>
+      <text x="30" y="121" font-family="ui-monospace, Consolas, monospace" font-size="12.5" fill="#f87171">− password = "prod-db-password"</text>
+      <text x="30" y="152" font-family="ui-sans-serif, -apple-system, sans-serif" font-size="13" fill="#8a8f9b">3 findings · 2 critical · rotate credentials</text>
+    </g>
+    <g transform="translate(300 -20)">
+      <rect x="0" y="0" width="200" height="150" rx="18" fill="#101116" stroke="#2b2f3a"/>
+      <text x="24" y="30" font-family="ui-sans-serif, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#8a8f9b">REPO RADAR</text>
+      <circle cx="100" cy="88" r="42" fill="none" stroke="#16181e" stroke-width="10"/>
+      <circle cx="100" cy="88" r="42" fill="none" stroke="#34d399" stroke-width="10" stroke-dasharray="211 264" stroke-linecap="round" transform="rotate(-90 100 88)"/>
+      <text x="100" y="86" text-anchor="middle" font-family="ui-sans-serif, -apple-system, sans-serif" font-size="30" font-weight="700" fill="#f7f8fa">80</text>
+      <text x="100" y="108" text-anchor="middle" font-family="ui-sans-serif, -apple-system, sans-serif" font-size="12" fill="#8a8f9b">Grade B</text>
+    </g>
+  </g>
+  <rect x="0" y="0" width="1280" height="420" fill="url(#sheen)"/>
+  <rect x="0.5" y="0.5" width="1279" height="419" fill="none" stroke="#1d1f27"/>
+</svg>

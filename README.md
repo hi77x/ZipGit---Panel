@@ -1,97 +1,257 @@
-# ZipToGit Pro
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="RepoDeck — mission control for your GitHub" width="100%">
+</p>
 
-**v4.0.0 · Production-oriented ZIP → GitHub import panel built with Next.js, TypeScript, GitHub OAuth, Pages and Actions tooling.**
+<h1 align="center">RepoDeck</h1>
 
-![License](https://img.shields.io/github/license/hi77x/ZipGit---Panel)
-[![Latest Release](https://img.shields.io/github/v/release/hi77x/ZipGit---Panel?display_name=tag&include_prereleases)](https://github.com/hi77x/ZipGit---Panel/releases/latest)
-![GitHub stars](https://img.shields.io/github/stars/hi77x/ZipGit---Panel?style=flat)
-![GitHub issues](https://img.shields.io/github/issues/hi77x/ZipGit---Panel)
-[![CI](https://github.com/hi77x/ZipGit---Panel/actions/workflows/ci.yml/badge.svg)](https://github.com/hi77x/ZipGit---Panel/actions/workflows/ci.yml)
+<p align="center"><strong>The self-hosted command deck for GitHub.</strong><br>
+Explore code, review diffs file by file, audit secrets, ship releases — and keep the token on your own server.</p>
 
-**[What it does](#what-it-does) · [Local setup](#local-setup) · [ZIP safety](#zip-safety-policy) · [Architecture](#architecture) · [License](#license)**
+<p align="center">
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/hi77x/ZipGit---Panel?style=flat-square&color=white"></a>
+  <a href="https://github.com/hi77x/ZipGit---Panel/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/hi77x/ZipGit---Panel?display_name=tag&include_prereleases&style=flat-square"></a>
+  <a href="https://github.com/hi77x/ZipGit---Panel/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/hi77x/ZipGit---Panel?style=flat-square"></a>
+  <a href="https://github.com/hi77x/ZipGit---Panel/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/hi77x/ZipGit---Panel?style=flat-square"></a>
+  <a href="https://github.com/hi77x/ZipGit---Panel/pulls"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-white?style=flat-square"></a>
+  <a href="https://github.com/hi77x/ZipGit---Panel/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/hi77x/ZipGit---Panel/actions/workflows/ci.yml/badge.svg"></a>
+</p>
+
+<p align="center">
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=nextdotjs&logoColor=white">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker&logoColor=white">
+  <img alt="Self-hosted" src="https://img.shields.io/badge/self--hosted-yes-white?style=flat-square">
+</p>
 
 ---
 
-ZipToGit Pro is a production-oriented Next.js application for importing a ZIP archive into a new GitHub repository as one clean root commit. It also provides repository overview, safe README rendering, recent activity, GitHub Pages configuration, and GitHub Actions controls.
+RepoDeck is a control plane for repositories you already host on GitHub. It does not mirror your code and does not store it in a database. It talks to the GitHub API from the server, renders every surface itself, and fixes the workflows developers complain about most: review turbulence, invisible repository health, and missing file-level tooling.
 
-The GitHub access token stays inside the encrypted Auth.js JWT session. It is never returned by `/api/auth/session`, embedded in React props, or stored in browser storage.
+> **Interface previews below are rendered from the actual design system** — the same tokens, spacing, and components that ship in `src/app/globals.css`.
 
-## What it does
+## Contents
 
-- GitHub OAuth with `read:user user:email repo workflow` scopes
-- private and public repository discovery through a server-side BFF
-- streaming multipart upload to a unique temporary directory
-- lazy ZIP metadata preflight before any GitHub mutation
-- one root commit through GitHub's Git Data API, with a maximum of six concurrent blob writes
-- GFM README rendering through GitHub with a safe local fallback
-- normalized repository activity without exposing raw event payloads
-- Pages disabled/configured/building/deployed/failed states
-- workflow and run listing, dispatch, cancel, and re-run operations
-- centralized typed errors, request IDs, rate-limit metadata, CSP, and security headers
-- responsive desktop, tablet, and mobile navigation
+- [Capabilities](#capabilities)
+- [Interface previews](#interface-previews)
+- [Quick start](#quick-start)
+- [GitHub OAuth app](#github-oauth-app)
+- [Production with Docker](#production-with-docker)
+- [Environment variables](#environment-variables)
+- [Why RepoDeck](#why-repodeck)
+- [Self-written engines](#self-written-engines)
+- [API surface](#api-surface)
+- [Security model](#security-model)
+- [Validation](#validation)
+- [Project structure](#project-structure)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Requirements
+## Capabilities
 
-- Node.js 22.12 or newer
-- npm 10 or newer
-- a GitHub OAuth App
-- a Node host with writable temporary storage and support for requests lasting up to five minutes
+| Area | What you get |
+| --- | --- |
+| **Code explorer** | Recursive file tree, syntax highlighting for 60+ languages, file editor that commits through the GitHub Contents API, branch create/delete, per-branch browsing |
+| **Review-grade diffs** | Per-file collapsible diffs, path filter, persisted "viewed" state, lazy loading for large patches, binary detection, unified parser with exact line numbers |
+| **Repo Radar** | Weighted 14-check health score, 27-rule secret scanner with entropy scoring, language composition, contributor map, 12-month heatmap, dependency inventory |
+| **Issues & pull requests** | Triage, create, comment, close/reopen, reviews (comment / approve / request changes), files changed, merge (merge / squash / rebase) with branch cleanup |
+| **Releases & inbox** | Release create/edit/delete with assets and download counts, notification inbox with unread tracking, starred repositories |
+| **Global search** | Repositories, code, and issues through the GitHub Search API |
+| **Command deck** | `⌘K` palette with fuzzy repository search, dark/light/system themes, live API budget meter, request IDs |
+| **ZIP import** | Publish an archive or folder as one auditable root commit with path, collision, symlink, and secret preflight |
+| **Actions & Pages** | Workflow and run listing, dispatch, cancel, re-run, Pages configuration with honest deployed/building/failed states |
 
-Short-timeout serverless platforms should move `ImportService` to a durable worker. The service boundary is already isolated for that migration.
+## Interface previews
 
-## Local setup
+### Mission control
+
+![Dashboard preview](docs/assets/preview-dashboard.svg)
+
+### Review-grade diffs
+
+![Diff viewer preview](docs/assets/preview-diff.svg)
+
+### Repo Radar
+
+![Repository radar preview](docs/assets/preview-radar.svg)
+
+### Code explorer and editor
+
+![Code explorer preview](docs/assets/preview-explorer.svg)
+
+### Command palette
+
+![Command palette preview](docs/assets/preview-palette.svg)
+
+## Quick start
+
+Three ways to run RepoDeck. Requirements: **Node.js 20.17+** (22.12+ recommended) and a GitHub OAuth App.
+
+### One command — macOS / Linux
+
+```bash
+git clone https://github.com/hi77x/ZipGit---Panel.git
+cd ZipGit---Panel
+./start.sh
+```
+
+### One command — Windows
+
+```powershell
+git clone https://github.com/hi77x/ZipGit---Panel.git
+cd ZipGit---Panel
+.\start.ps1
+```
+
+Both launchers create `.env`, generate `AUTH_SECRET`, run the environment doctor, install dependencies, and start the dev server. Add `--prod` / `-Prod` to build and run a production server.
+
+### Manual
 
 ```bash
 npm install
-cp .env.example .env.local
+npm run setup     # creates .env and generates AUTH_SECRET
+npm run doctor    # validates Node, env, network, and port
 npm run dev
 ```
 
-Create a GitHub OAuth App and configure:
+Open [http://localhost:3000](http://localhost:3000).
 
-- Homepage URL: `http://localhost:3000`
-- Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
+## GitHub OAuth app
 
-Fill the following values in `.env.local`:
+Create an OAuth App at [github.com/settings/developers](https://github.com/settings/developers):
 
-```dotenv
-AUTH_SECRET=generate-a-random-value-of-at-least-32-characters
-AUTH_GITHUB_ID=your-oauth-client-id
-AUTH_GITHUB_SECRET=your-oauth-client-secret
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+| Field | Value |
+| --- | --- |
+| Homepage URL | `http://localhost:3000` (or your public URL) |
+| Authorization callback URL | `http://localhost:3000/api/auth/callback/github` |
+
+Then fill in `.env`:
+
+```env
+AUTH_GITHUB_ID=...
+AUTH_GITHUB_SECRET=...
 ```
 
-Generate `AUTH_SECRET` with a cryptographically secure password generator. Never commit `.env.local`.
+RepoDeck requests the `read:user user:email repo workflow notifications` scopes. Everything else stays inside the server-side encrypted Auth.js JWT session.
 
-## Validation commands
+## Production with Docker
+
+```bash
+cp .env.example .env
+# set AUTH_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, NEXT_PUBLIC_APP_URL
+docker compose up -d --build
+```
+
+The container is a multi-stage, non-root, Node 22 Alpine image built from Next.js standalone output. A named volume is mounted at `/tmp` so large ZIP imports never exhaust the container layer. A health check hits `/api/health` every 30 seconds.
+
+Behind a reverse proxy, forward `X-Forwarded-Proto` / `X-Forwarded-For`, set `NEXT_PUBLIC_APP_URL` to the public HTTPS URL, and let the built-in CSP / HSTS headers do the rest.
+
+## Environment variables
+
+| Variable | Required | Default | Purpose |
+| --- | :---: | --- | --- |
+| `AUTH_SECRET` | yes | — | Auth.js JWT encryption, minimum 32 characters |
+| `AUTH_GITHUB_ID` | yes | — | GitHub OAuth client ID |
+| `AUTH_GITHUB_SECRET` | yes | — | GitHub OAuth client secret |
+| `NEXT_PUBLIC_APP_URL` | yes | — | Public base URL used for redirects |
+| `GITHUB_API_BASE_URL` | no | `https://api.github.com` | GitHub API base (GitHub Enterprise support) |
+| `GITHUB_API_VERSION` | no | `2022-11-28` | REST API version header |
+| `LOG_LEVEL` | no | `info` | `debug`, `info`, `warn`, `error` |
+| `PORT` | no | `3000` | HTTP port |
+| `IMPORT_MAX_ZIP_BYTES` | no | `104857600` | Compressed ZIP limit |
+| `IMPORT_MAX_UNCOMPRESSED_BYTES` | no | `262144000` | Total uncompressed limit |
+| `IMPORT_MAX_FILES` | no | `5000` | Maximum archive entries |
+| `IMPORT_MAX_SINGLE_FILE_BYTES` | no | `52428800` | Single-file limit |
+
+## Why RepoDeck
+
+The feature set comes from current developer pain points, not from a parity checklist:
+
+| GitHub pain point | RepoDeck answer |
+| --- | --- |
+| “Load diff” hides large files | Diffs are lazy per file, with an explicit **Load diff** only for huge patches |
+| Review state is lost between visits | Viewed files persist per pull request and per commit |
+| No visibility into review load | Contributor analytics and radar metrics |
+| Secrets reach history before anyone notices | 27 rule families with entropy scoring, masked snippets, and remediation |
+| Repository health is guesswork | Weighted health score with concrete next actions |
+| File editing requires cloning | Edit and commit single files in the browser |
+| API budget is invisible | Live rate-limit meter in the top bar |
+
+## Self-written engines
+
+Every analytical engine is implemented in `src/lib`, has unit tests, and adds no runtime dependencies:
+
+| Module | Responsibility |
+| --- | --- |
+| `diff.ts` | Unified diff parsing, hunk numbering, change classification, large-patch detection |
+| `syntax.ts` | Tokenizer for 60+ languages across code, HTML, CSS, JSON, YAML, Markdown, shell, SQL, Python modes |
+| `secret-rules.ts` | Secret rule families, Shannon entropy, masking, severity summaries |
+| `health.ts` | 14 weighted checks, grading, strengths, improvements |
+| `dependencies.ts` | npm, pip, Go, Cargo, Composer, Maven, Gradle manifest detection |
+| `fuzzy.ts` | Subsequence scoring with word-boundary bonuses for the command palette |
+| `language.ts` | Extension detection, syntax modes, and color mapping |
+
+## API surface
+
+All GitHub traffic goes through **37 allowlisted BFF route handlers** under `src/app/api/github`. Highlights:
+
+- `GET /api/github/repositories` — paginated discovery across owner, collaborator, and organization repositories
+- `GET/PUT/DELETE /api/github/repositories/{owner}/{repo}/contents` — tree reads and file writes
+- `GET /api/github/repositories/{owner}/{repo}/commits` and `/commits/{sha}` — history and details
+- `GET /api/github/repositories/{owner}/{repo}/compare` — branch and commit comparison
+- `GET /api/github/repositories/{owner}/{repo}/audit` — the full Repo Radar report
+- `GET/POST /api/github/repositories/{owner}/{repo}/issues` — issue lifecycle and comments
+- `GET/POST /api/github/repositories/{owner}/{repo}/pulls` — pull requests, reviews, files, merge
+- `GET/POST /api/github/repositories/{owner}/{repo}/releases` — releases with assets
+- `GET /api/github/search` — repositories, code, and issues
+- `GET /api/github/rate-limit` — live API budget
+
+Every response uses the same envelope with `ok`, `data`, `requestId`, and `rateLimit` metadata.
+
+## Security model
+
+- The GitHub access token lives only in the encrypted Auth.js JWT cookie and server request context. It is never returned by `/api/auth/session`, embedded in React props, or written to browser storage.
+- Every route is an allowlisted BFF handler with Zod validation, repository accessibility checks, and typed errors.
+- Nonce-based CSP with `strict-dynamic`, `frame-ancestors 'none'`, HSTS in production, and no permissive wildcards.
+- ZIP import rejects traversal, absolute paths, NUL bytes, collisions, symlinks, encrypted entries, `.git/**`, and credential filenames before GitHub is mutated.
+- Secret findings are masked server-side; raw credentials are never sent to the browser.
+
+## Validation
 
 ```bash
 npm run lint
 npm run typecheck
 npm run test
 npm run build
-npm run test:e2e
+npm run test:e2e   # Playwright with a mock GitHub server
+npm run check      # lint + typecheck + tests + production build
 ```
 
-`npm run check` runs lint, TypeScript, unit/integration tests, and the production build in sequence. Playwright is separate because it starts local application and mock GitHub servers.
-
-## ZIP safety policy
-
-Validation runs before the repository is created. The importer rejects traversal, absolute or drive-letter paths, NUL characters, duplicate or case-colliding paths, encrypted entries, symlinks, special files, `.git/**`, likely credentials, and archives exceeding configured limits.
-
-The default exclusions are:
+## Project structure
 
 ```text
-.git/** node_modules/** .next/** dist/** build/** coverage/**
-.turbo/** .cache/** *.log .DS_Store Thumbs.db
+src/app          routing, server components, BFF route handlers
+src/components   design system, code/diff viewers, charts, app shell
+src/features     client-side feature components and same-origin API calls
+src/lib          self-written engines (diff, syntax, secrets, health, fuzzy)
+src/server       GitHub transport, services, ZIP import, auth context
+src/shared       serializable contracts and typed API envelopes
+scripts          setup and environment doctor
+docs             interface assets and manual smoke test
 ```
 
-`.env.example` is allowed. `.env`, `.env.*`, private keys, SSH identity files, service-account JSON, and credential/secret filenames block the entire import before GitHub is changed.
+## Roadmap
 
-## Architecture
+- [ ] Webhook-driven activity summaries and saved review filters
+- [ ] Diff comments anchored to lines (review threads)
+- [ ] Multi-repository dashboards with saved views
+- [ ] Optional GitHub Enterprise presets in the UI
+- [ ] Exportable audit reports (JSON / SARIF)
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for trust boundaries and the route/service map. See [SECURITY.md](./SECURITY.md) before operating a public deployment. Manual real-GitHub verification is documented in [docs/MANUAL_SMOKE_TEST.md](./docs/MANUAL_SMOKE_TEST.md).
+## Contributing
+
+Pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) for conventions, then run `npm run check` before opening a PR. Security issues: see [SECURITY.md](SECURITY.md).
 
 ## License
 
-MIT. See [LICENSE](./LICENSE).
+[MIT](LICENSE) © RepoDeck contributors.

@@ -12,7 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [GitHub({
     clientId: env.AUTH_GITHUB_ID,
     clientSecret: env.AUTH_GITHUB_SECRET,
-    authorization: { params: { scope: "read:user user:email repo workflow" } }
+    authorization: { params: { scope: "read:user user:email repo workflow notifications" } }
   })],
   callbacks: {
     async jwt({ token, account, profile }) {

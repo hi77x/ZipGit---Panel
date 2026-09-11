@@ -1,10 +1,15 @@
 {
-  "name": "ziptogit-pro",
-  "version": "4.0.0",
+  "name": "repodeck",
+  "version": "5.0.0",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=20.17.0"
+  },
+  "overrides": {
+    "sanitize-html": {
+      "htmlparser2": "^10.0.0"
+    }
   },
   "scripts": {
     "dev": "next dev",
@@ -15,12 +20,16 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "doctor": "node scripts/doctor.mjs",
+    "setup": "node scripts/setup.mjs",
+    "docker:up": "docker compose up -d --build",
+    "docker:logs": "docker compose logs -f app",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
     "busboy": "^1.6.0",
     "lucide-react": "^0.544.0",
-    "next": "^16.0.0",
+    "next": "16.3.4",
     "next-auth": "5.0.0-beta.32",
     "p-limit": "^7.1.1",
     "react": "^19.2.0",

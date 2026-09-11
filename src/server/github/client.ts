@@ -61,7 +61,7 @@ export class GitHubClient {
           Accept: options.accept ?? "application/vnd.github+json",
           "Content-Type": "application/json",
           "X-GitHub-Api-Version": env.GITHUB_API_VERSION,
-          "User-Agent": "ZipToGit-Pro"
+          "User-Agent": "RepoDeck"
         },
         body: options.body === undefined ? undefined : JSON.stringify(options.body),
         cache: "no-store",

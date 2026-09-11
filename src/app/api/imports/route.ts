@@ -17,7 +17,7 @@ export const maxDuration = 300;
 
 export async function POST(request: Request) {
   return handleApi(request, async (context) => {
-    const tempDir = await fs.mkdtemp(join(tmpdir(), "ziptogit-"));
+    const tempDir = await fs.mkdtemp(join(tmpdir(), "repodeck-"));
     try {
       const { archivePath, fields } = await receiveMultipart(request, tempDir);
       const parsed = importFieldsSchema.safeParse(fields);

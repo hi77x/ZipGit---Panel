@@ -2,15 +2,19 @@ import type { ButtonHTMLAttributes, AnchorHTMLAttributes, ReactNode } from "reac
 import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
-export function Button({ variant = "secondary", loading, className = "", children, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; loading?: boolean }) {
-  return <button className={`button button-${variant} ${className}`} disabled={loading || props.disabled} aria-busy={loading || undefined} {...props}>
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "success";
+type Size = "sm" | "md" | "lg" | "icon";
+
+const sizeClass: Record<Size, string> = { sm: "button-sm", md: "", lg: "button-lg", icon: "button-icon" };
+
+export function Button({ variant = "secondary", size = "md", loading, className = "", children, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size; loading?: boolean }) {
+  return <button className={`button button-${variant} ${sizeClass[size]} ${className}`} disabled={loading || props.disabled} aria-busy={loading || undefined} {...props}>
     {loading ? <LoaderCircle className="spin" aria-hidden="true" /> : null}<span>{children}</span>
   </button>;
 }
 
-export function ButtonLink({ href, variant = "secondary", className = "", children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; variant?: Variant; children: ReactNode }) {
-  return <Link href={href} className={`button button-${variant} ${className}`} {...props}>{children}</Link>;
+export function ButtonLink({ href, variant = "secondary", size = "md", className = "", children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; variant?: Variant; size?: Size; children: ReactNode }) {
+  return <Link href={href} className={`button button-${variant} ${sizeClass[size]} ${className}`} {...props}>{children}</Link>;
 }
 
 export function ExternalLink({ href, children, className = "" }: { href: string; children: ReactNode; className?: string }) {

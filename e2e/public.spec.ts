@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("unauthenticated users see OAuth landing and protected routes redirect", async ({ page }) => {
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/?callbackUrl=%2Fdashboard/);
-  await expect(page.getByRole("heading", { name: /From ZIP archive/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Mission control/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with GitHub" })).toBeVisible();
 });
 

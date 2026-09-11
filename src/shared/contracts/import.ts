@@ -7,7 +7,7 @@ export const importFieldsSchema = z.object({
   description: z.string().max(350).default(""),
   visibility: z.enum(["private", "public"]),
   defaultBranch: z.string().trim().min(1).max(255).default("main"),
-  commitMessage: z.string().trim().min(1).max(500).default("Import project via ZipToGit Pro"),
+  commitMessage: z.string().trim().min(1).max(500).default("Import project via RepoDeck"),
   stripSingleRoot: z.enum(["true", "false"]).transform((value) => value === "true"),
   excludeGenerated: z.enum(["true", "false"]).transform((value) => value === "true")
 });

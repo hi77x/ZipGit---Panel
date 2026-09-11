@@ -18,6 +18,17 @@ export const repositorySchema = z.object({
   language: z.string().nullable(),
   stargazers_count: z.number(),
   forks_count: z.number(),
+  watchers_count: z.number().optional(),
+  open_issues_count: z.number().optional(),
+  topics: z.array(z.string()).optional(),
+  archived: z.boolean().optional(),
+  disabled: z.boolean().optional(),
+  fork: z.boolean().optional(),
+  homepage: z.string().nullable().optional(),
+  size: z.number().optional(),
+  license: z.object({ spdx_id: z.string().nullable(), name: z.string().nullable() }).nullable().optional(),
+  created_at: z.string().optional(),
+  pushed_at: z.string().nullable().optional(),
   updated_at: z.string(),
   default_branch: z.string(),
   html_url: z.url(),
@@ -34,6 +45,17 @@ export type RepositoryDto = {
   language: string | null;
   stars: number;
   forks: number;
+  watchers: number;
+  openIssues: number;
+  topics: string[];
+  archived: boolean;
+  isFork: boolean;
+  homepage: string | null;
+  sizeKb: number;
+  license: string | null;
+  licenseName: string | null;
+  createdAt: string | null;
+  pushedAt: string | null;
   updatedAt: string;
   defaultBranch: string;
   url: string;

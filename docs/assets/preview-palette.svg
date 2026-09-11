@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-label="RepoDeck command palette preview">
+  <rect width="1280" height="640" fill="#050506"/>
+  <g opacity="0.55">
+    <rect x="0" y="0" width="232" height="640" fill="#08090b" stroke="#1d1f27"/>
+    <rect x="12" y="112" width="208" height="36" rx="9" fill="#16181e"/>
+    <rect x="20" y="22" width="34" height="34" rx="9" fill="#ffffff" opacity="0.5"/>
+    <rect x="26" y="172" width="180" height="14" rx="7" fill="#16181e"/>
+    <rect x="26" y="200" width="150" height="14" rx="7" fill="#16181e"/>
+    <rect x="26" y="228" width="164" height="14" rx="7" fill="#16181e"/>
+    <rect x="232" y="0" width="1048" height="56" fill="#07080a" stroke="#1d1f27"/>
+    <rect x="272" y="112" width="240" height="26" rx="13" fill="#16181e"/>
+    <rect x="272" y="164" width="306" height="94" rx="14" fill="#0b0c0f" stroke="#1d1f27"/>
+    <rect x="598" y="164" width="306" height="94" rx="14" fill="#0b0c0f" stroke="#1d1f27"/>
+    <rect x="924" y="164" width="336" height="94" rx="14" fill="#0b0c0f" stroke="#1d1f27"/>
+    <rect x="272" y="286" width="610" height="240" rx="14" fill="#0b0c0f" stroke="#1d1f27"/>
+    <rect x="900" y="286" width="360" height="240" rx="14" fill="#0b0c0f" stroke="#1d1f27"/>
+    <rect x="272" y="552" width="306" height="76" rx="14" fill="#0b0c0f" stroke="#1d1f27"/>
+    <rect x="598" y="552" width="306" height="76" rx="14" fill="#0b0c0f" stroke="#1d1f27"/>
+    <rect x="924" y="552" width="336" height="76" rx="14" fill="#0b0c0f" stroke="#1d1f27"/>
+  </g>
+  <rect width="1280" height="640" fill="#000000" opacity="0.62"/>
+  <g font-family="ui-sans-serif, -apple-system, 'Segoe UI', sans-serif">
+    <rect x="320" y="96" width="640" height="448" rx="18" fill="#101116" stroke="#2b2f3a"/>
+    <rect x="320" y="96" width="640" height="58" rx="18" fill="#101116"/>
+    <rect x="320" y="136" width="640" height="18" fill="#101116"/>
+    <circle cx="352" cy="125" r="7" fill="none" stroke="#8a8f9b" stroke-width="1.8"/>
+    <path d="M357 130 l7 7" stroke="#8a8f9b" stroke-width="1.8" stroke-linecap="round"/>
+    <text x="378" y="131" font-size="15" fill="#f7f8fa">deck</text>
+    <rect x="392" y="119" width="2" height="18" fill="#f7f8fa"/>
+    <rect x="900" y="116" width="42" height="20" rx="5" fill="#16181e" stroke="#2b2f3a"/>
+    <text x="921" y="130" text-anchor="middle" font-size="10" font-weight="700" fill="#8a8f9b">esc</text>
+    <rect x="320" y="154" width="640" height="1" fill="#1d1f27"/>
+    <text x="344" y="184" font-size="10" font-weight="700" fill="#5c6170" letter-spacing="1.4">NAVIGATE</text>
+    <rect x="332" y="196" width="616" height="38" rx="9" fill="#1c1f27"/>
+    <circle cx="356" cy="215" r="7" fill="none" stroke="#f7f8fa" stroke-width="1.5"/>
+    <text x="374" y="220" font-size="13.5" fill="#f7f8fa">Dashboard</text>
+    <text x="924" y="220" text-anchor="end" font-size="11" fill="#5c6170">page</text>
+    <g fill="#c9cdd6">
+      <path d="M350 273 l6 6 l14 0 l0 -14 z" fill="none" stroke="#8a8f9b" stroke-width="1.4"/>
+      <text x="374" y="278" font-size="13.5">Repositories</text>
+      <circle cx="356" cy="309" r="6.5" fill="none" stroke="#8a8f9b" stroke-width="1.4"/>
+      <text x="374" y="314" font-size="13.5">Search</text>
+      <path d="M349 341 a7 7 0 0 1 14 0" fill="none" stroke="#8a8f9b" stroke-width="1.4"/>
+      <text x="374" y="350" font-size="13.5">Notifications</text>
+    </g>
+    <text x="344" y="392" font-size="10" font-weight="700" fill="#5c6170" letter-spacing="1.4">REPOSITORIES</text>
+    <rect x="332" y="404" width="616" height="38" rx="9" fill="#1c1f27"/>
+    <rect x="348" y="413" width="20" height="20" rx="6" fill="#ffffff"/>
+    <text x="380" y="428" font-size="13.5" fill="#f7f8fa">deck-tools</text>
+    <text x="924" y="428" text-anchor="end" font-size="11" fill="#5c6170">octocat</text>
+    <g fill="#c9cdd6">
+      <rect x="348" y="459" width="20" height="20" rx="6" fill="#16181e" stroke="#2b2f3a"/>
+      <text x="380" y="474" font-size="13.5">repodeck</text>
+      <text x="924" y="474" text-anchor="end" font-size="11" fill="#5c6170">octocat</text>
+    </g>
+    <text x="344" y="516" font-size="10" font-weight="700" fill="#5c6170" letter-spacing="1.4">ACTIONS</text>
+    <path d="M350 528 l5 0 l-2.5 5 l2.5 0 l-5 8 l1.5 -6 l-3 0 z" fill="none" stroke="#8a8f9b" stroke-width="1.2"/>
+    <text x="374" y="538" font-size="13.5" fill="#c9cdd6">Toggle dark / light theme</text>
+    <text x="640" y="588" text-anchor="middle" font-size="11" fill="#5c6170">↑ ↓ navigate   ·   ↵ open   ·   esc close</text>
+  </g>
+  <rect x="0.5" y="0.5" width="1279" height="639" fill="none" stroke="#1d1f27"/>
+</svg>

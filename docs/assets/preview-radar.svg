@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800" role="img" aria-label="RepoDeck repository radar preview">
+  <defs>
+    <radialGradient id="gglow" cx="80%" cy="0%" r="60%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#050506" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="800" fill="#050506"/>
+  <rect width="1280" height="800" fill="url(#gglow)"/>
+  <g font-family="ui-sans-serif, -apple-system, 'Segoe UI', sans-serif">
+    <text x="64" y="86" font-size="30" font-weight="700" fill="#f7f8fa" letter-spacing="-0.8">Repository radar</text>
+    <text x="64" y="112" font-size="12.5" fill="#8a8f9b">Audit generated 2 minutes ago · branch main · bounded to 400 files / 4 MB</text>
+    <rect x="1088" y="62" width="128" height="38" rx="9" fill="#121317" stroke="#2b2f3a"/>
+    <text x="1152" y="86" text-anchor="middle" font-size="12.5" font-weight="600" fill="#c9cdd6">Rescan audit</text>
+    <g>
+      <rect x="64" y="140" width="234" height="86" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="84" y="168" font-size="10" font-weight="700" fill="#8a8f9b" letter-spacing="1">FILES SCANNED</text>
+      <text x="84" y="204" font-size="26" font-weight="700" fill="#f7f8fa">312 <tspan font-size="12" font-weight="500" fill="#5c6170">of 428</tspan></text>
+      <rect x="310" y="140" width="234" height="86" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="330" y="168" font-size="10" font-weight="700" fill="#8a8f9b" letter-spacing="1">TEXT DOWNLOADED</text>
+      <text x="330" y="204" font-size="26" font-weight="700" fill="#f7f8fa">3.8 MB</text>
+      <rect x="556" y="140" width="234" height="86" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="576" y="168" font-size="10" font-weight="700" fill="#8a8f9b" letter-spacing="1">CONTRIBUTORS</text>
+      <text x="576" y="204" font-size="26" font-weight="700" fill="#f7f8fa">8</text>
+      <rect x="802" y="140" width="234" height="86" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="822" y="168" font-size="10" font-weight="700" fill="#8a8f9b" letter-spacing="1">COMMITS · 90 DAYS</text>
+      <text x="822" y="204" font-size="26" font-weight="700" fill="#f7f8fa">143</text>
+      <rect x="1048" y="140" width="168" height="86" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="1068" y="168" font-size="10" font-weight="700" fill="#8a8f9b" letter-spacing="1">RISK SCORE</text>
+      <text x="1068" y="204" font-size="26" font-weight="700" fill="#fbbf24">28</text>
+      <text x="1122" y="204" font-size="12" fill="#5c6170">/100</text>
+    </g>
+    <g>
+      <rect x="64" y="242" width="560" height="252" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="84" y="274" font-size="14" font-weight="600" fill="#f7f8fa">Health checks</text>
+      <text x="600" y="274" text-anchor="end" font-size="11" fill="#8a8f9b">9 pass · 3 warn · 2 fail</text>
+      <g font-size="12">
+        <circle cx="92" cy="306" r="7" fill="#0f1a14" stroke="#34d399" stroke-width="1.5"/>
+        <path d="M88 306 l3 3 l5 -6" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="110" y="311" fill="#f7f8fa" font-weight="600">README present</text>
+        <text x="600" y="311" text-anchor="end" fill="#5c6170">12/12</text>
+        <circle cx="92" cy="338" r="7" fill="#0f1a14" stroke="#34d399" stroke-width="1.5"/>
+        <path d="M88 338 l3 3 l5 -6" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="110" y="343" fill="#f7f8fa" font-weight="600">Continuous integration</text>
+        <text x="600" y="343" text-anchor="end" fill="#5c6170">11/11</text>
+        <circle cx="92" cy="370" r="7" fill="#1d1408" stroke="#fbbf24" stroke-width="1.5"/>
+        <path d="M92 366 v5 M92 373.5 v0.5" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round"/>
+        <text x="110" y="375" fill="#f7f8fa" font-weight="600">Test suite detected</text>
+        <text x="600" y="375" text-anchor="end" fill="#5c6170">7/10</text>
+        <circle cx="92" cy="402" r="7" fill="#1a1012" stroke="#f87171" stroke-width="1.5"/>
+        <path d="M89 399 l6 6 M95 399 l-6 6" stroke="#f87171" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="110" y="407" fill="#f7f8fa" font-weight="600">No committed secrets</text>
+        <text x="600" y="407" text-anchor="end" fill="#f87171">0/15</text>
+        <circle cx="92" cy="434" r="7" fill="#0f1725" stroke="#7aa2ff" stroke-width="1.5"/>
+        <path d="M92 430 v6 M92 438 v0.5" stroke="#7aa2ff" stroke-width="1.8" stroke-linecap="round"/>
+        <text x="110" y="439" fill="#f7f8fa" font-weight="600">Dependency manifest</text>
+        <text x="600" y="439" text-anchor="end" fill="#5c6170">4/4</text>
+        <circle cx="92" cy="466" r="7" fill="#0f1a14" stroke="#34d399" stroke-width="1.5"/>
+        <path d="M88 466 l3 3 l5 -6" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="110" y="471" fill="#f7f8fa" font-weight="600">Recent activity</text>
+        <text x="600" y="471" text-anchor="end" fill="#5c6170">12/12</text>
+      </g>
+    </g>
+    <g>
+      <rect x="64" y="510" width="560" height="258" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="84" y="542" font-size="14" font-weight="600" fill="#f7f8fa">Secret findings</text>
+      <rect x="540" y="524" width="64" height="24" rx="12" fill="#1a1012" stroke="#5a2026"/>
+      <text x="572" y="540" text-anchor="middle" font-size="10" font-weight="700" fill="#f87171">2 CRIT</text>
+      <rect x="472" y="524" width="60" height="24" rx="12" fill="#1d1408" stroke="#5a4318"/>
+      <text x="502" y="540" text-anchor="middle" font-size="10" font-weight="700" fill="#fbbf24">1 HIGH</text>
+      <g>
+        <rect x="80" y="560" width="528" height="88" rx="10" fill="#121317" stroke="#2b2f3a"/>
+        <rect x="80" y="560" width="3" height="88" rx="1.5" fill="#f87171"/>
+        <text x="100" y="584" font-size="12.5" font-weight="600" fill="#f7f8fa">AWS secret access key</text>
+        <rect x="470" y="570" width="122" height="20" rx="10" fill="#1a1012" stroke="#5a2026"/>
+        <text x="531" y="584" text-anchor="middle" font-size="9.5" font-weight="700" fill="#f87171">CRITICAL</text>
+        <text x="100" y="606" font-family="ui-monospace, Consolas, monospace" font-size="11.5" fill="#8a8f9b">config/aws.env:14</text>
+        <text x="100" y="628" font-family="ui-monospace, Consolas, monospace" font-size="11.5" fill="#e7d18d">aws_secret_access_key = AKIA••••••••QPNMLK</text>
+        <text x="100" y="642" font-size="10.5" fill="#5c6170">Rotate the credential in IAM and remove it from history.</text>
+      </g>
+      <g>
+        <rect x="80" y="658" width="528" height="88" rx="10" fill="#121317" stroke="#2b2f3a"/>
+        <rect x="80" y="658" width="3" height="88" rx="1.5" fill="#fbbf24"/>
+        <text x="100" y="682" font-size="12.5" font-weight="600" fill="#f7f8fa">Database connection string with password</text>
+        <rect x="482" y="668" width="110" height="20" rx="10" fill="#1d1408" stroke="#5a4318"/>
+        <text x="537" y="682" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fbbf24">HIGH</text>
+        <text x="100" y="704" font-family="ui-monospace, Consolas, monospace" font-size="11.5" fill="#8a8f9b">scripts/seed.ts:31</text>
+        <text x="100" y="726" font-family="ui-monospace, Consolas, monospace" font-size="11.5" fill="#e7d18d">postgres://admin:••••••••@db.internal/app</text>
+        <text x="100" y="740" font-size="10.5" fill="#5c6170">Inject the connection string from environment variables.</text>
+      </g>
+    </g>
+    <g>
+      <rect x="652" y="242" width="564" height="168" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="672" y="274" font-size="14" font-weight="600" fill="#f7f8fa">Health score</text>
+      <circle cx="712" cy="344" r="48" fill="none" stroke="#16181e" stroke-width="11"/>
+      <circle cx="712" cy="344" r="48" fill="none" stroke="#34d399" stroke-width="11" stroke-dasharray="241 302" stroke-linecap="round" transform="rotate(-90 712 344)"/>
+      <text x="712" y="342" text-anchor="middle" font-size="30" font-weight="700" fill="#f7f8fa">80</text>
+      <text x="712" y="362" text-anchor="middle" font-size="11" fill="#8a8f9b">Grade B</text>
+      <text x="800" y="308" font-size="12.5" fill="#c9cdd6" font-weight="600">Summary</text>
+      <text x="800" y="330" font-size="11.5" fill="#8a8f9b">9 of 14 checks pass. Top improvement:</text>
+      <text x="800" y="348" font-size="11.5" fill="#8a8f9b">no committed secrets.</text>
+      <rect x="800" y="364" width="120" height="26" rx="13" fill="#1a1012" stroke="#5a2026"/>
+      <text x="860" y="381" text-anchor="middle" font-size="10.5" font-weight="700" fill="#f87171">Rotate 2 secrets</text>
+      <rect x="932" y="364" width="150" height="26" rx="13" fill="#121317" stroke="#2b2f3a"/>
+      <text x="1007" y="381" text-anchor="middle" font-size="10.5" font-weight="700" fill="#c9cdd6">Add 4 more tests</text>
+    </g>
+    <g>
+      <rect x="652" y="426" width="564" height="168" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="672" y="458" font-size="14" font-weight="600" fill="#f7f8fa">Commit heatmap</text>
+      <text x="1196" y="458" text-anchor="end" font-size="11" fill="#8a8f9b">last 12 months</text>
+      <g>
+        <rect x="672" y="476" width="13" height="13" rx="3" fill="#16181e"/><rect x="689" y="476" width="13" height="13" rx="3" fill="#1d3a2d"/><rect x="706" y="476" width="13" height="13" rx="3" fill="#245943"/><rect x="723" y="476" width="13" height="13" rx="3" fill="#2f7d5b"/><rect x="740" y="476" width="13" height="13" rx="3" fill="#34d399"/><rect x="757" y="476" width="13" height="13" rx="3" fill="#16181e"/><rect x="774" y="476" width="13" height="13" rx="3" fill="#1d3a2d"/><rect x="791" y="476" width="13" height="13" rx="3" fill="#245943"/><rect x="808" y="476" width="13" height="13" rx="3" fill="#16181e"/><rect x="825" y="476" width="13" height="13" rx="3" fill="#2f7d5b"/><rect x="842" y="476" width="13" height="13" rx="3" fill="#34d399"/><rect x="859" y="476" width="13" height="13" rx="3" fill="#16181e"/>
+        <rect x="672" y="493" width="13" height="13" rx="3" fill="#245943"/><rect x="689" y="493" width="13" height="13" rx="3" fill="#16181e"/><rect x="706" y="493" width="13" height="13" rx="3" fill="#2f7d5b"/><rect x="723" y="493" width="13" height="13" rx="3" fill="#34d399"/><rect x="740" y="493" width="13" height="13" rx="3" fill="#1d3a2d"/><rect x="757" y="493" width="13" height="13" rx="3" fill="#245943"/><rect x="774" y="493" width="13" height="13" rx="3" fill="#16181e"/><rect x="791" y="493" width="13" height="13" rx="3" fill="#2f7d5b"/><rect x="808" y="493" width="13" height="13" rx="3" fill="#34d399"/><rect x="825" y="493" width="13" height="13" rx="3" fill="#1d3a2d"/><rect x="842" y="493" width="13" height="13" rx="3" fill="#16181e"/><rect x="859" y="493" width="13" height="13" rx="3" fill="#245943"/>
+        <rect x="672" y="510" width="13" height="13" rx="3" fill="#16181e"/><rect x="689" y="510" width="13" height="13" rx="3" fill="#34d399"/><rect x="706" y="510" width="13" height="13" rx="3" fill="#1d3a2d"/><rect x="723" y="510" width="13" height="13" rx="3" fill="#245943"/><rect x="740" y="510" width="13" height="13" rx="3" fill="#16181e"/><rect x="757" y="510" width="13" height="13" rx="3" fill="#2f7d5b"/><rect x="774" y="510" width="13" height="13" rx="3" fill="#34d399"/><rect x="791" y="510" width="13" height="13" rx="3" fill="#16181e"/><rect x="808" y="510" width="13" height="13" rx="3" fill="#1d3a2d"/><rect x="825" y="510" width="13" height="13" rx="3" fill="#245943"/><rect x="842" y="510" width="13" height="13" rx="3" fill="#16181e"/><rect x="859" y="510" width="13" height="13" rx="3" fill="#2f7d5b"/>
+        <rect x="672" y="527" width="13" height="13" rx="3" fill="#2f7d5b"/><rect x="689" y="527" width="13" height="13" rx="3" fill="#16181e"/><rect x="706" y="527" width="13" height="13" rx="3" fill="#34d399"/><rect x="723" y="527" width="13" height="13" rx="3" fill="#16181e"/><rect x="740" y="527" width="13" height="13" rx="3" fill="#245943"/><rect x="757" y="527" width="13" height="13" rx="3" fill="#1d3a2d"/><rect x="774" y="527" width="13" height="13" rx="3" fill="#2f7d5b"/><rect x="791" y="527" width="13" height="13" rx="3" fill="#34d399"/><rect x="808" y="527" width="13" height="13" rx="3" fill="#16181e"/><rect x="825" y="527" width="13" height="13" rx="3" fill="#245943"/><rect x="842" y="527" width="13" height="13" rx="3" fill="#1d3a2d"/><rect x="859" y="527" width="13" height="13" rx="3" fill="#16181e"/>
+      </g>
+      <text x="672" y="566" font-size="11.5" fill="#8a8f9b">143 commits · 8 contributors · bus factor 3</text>
+    </g>
+    <g>
+      <rect x="652" y="610" width="564" height="158" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <text x="672" y="642" font-size="14" font-weight="600" fill="#f7f8fa">Language composition</text>
+      <g font-size="11.5">
+        <circle cx="678" cy="672" r="4.5" fill="#3178c6"/><text x="692" y="676" fill="#c9cdd6">TypeScript</text>
+        <rect x="800" y="668" width="300" height="7" rx="3.5" fill="#16181e"/><rect x="800" y="668" width="242" height="7" rx="3.5" fill="#3178c6"/><text x="1112" y="676" fill="#5c6170">81%</text>
+        <circle cx="678" cy="700" r="4.5" fill="#89e051"/><text x="692" y="704" fill="#c9cdd6">Shell</text>
+        <rect x="800" y="696" width="300" height="7" rx="3.5" fill="#16181e"/><rect x="800" y="696" width="36" height="7" rx="3.5" fill="#89e051"/><text x="1112" y="704" fill="#5c6170">12%</text>
+        <circle cx="678" cy="728" r="4.5" fill="#e34c26"/><text x="692" y="732" fill="#c9cdd6">HTML</text>
+        <rect x="800" y="724" width="300" height="7" rx="3.5" fill="#16181e"/><rect x="800" y="724" width="21" height="7" rx="3.5" fill="#e34c26"/><text x="1112" y="732" fill="#5c6170">7%</text>
+      </g>
+    </g>
+  </g>
+  <rect x="0.5" y="0.5" width="1279" height="799" fill="none" stroke="#1d1f27"/>
+</svg>

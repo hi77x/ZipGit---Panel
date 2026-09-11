@@ -49,6 +49,36 @@ export class RepositoryService {
   async assertAccessible(owner: string, repo: string): Promise<void> {
     await this.detail(owner, repo);
   }
+
+  async listStarred(page: number, perPage: number) {
+    const result = await this.github.request({ path: "/user/starred", query: { sort: "updated", direction: "desc", page, per_page: perPage }, schema: z.array(repositorySchema), endpointTemplate: "/user/starred" });
+    return { repositories: result.data.map(toRepository), page, hasNext: Boolean(result.links.next) };
+  }
+
+  async starState(owner: string, repo: string): Promise<{ starred: boolean; stars: number }> {
+    const detail = await this.detail(owner, repo);
+    const path = `/user/starred/${encodeGitHubSegment(owner)}/${encodeGitHubSegment(repo)}`;
+    try {
+      await this.github.request({ path, schema: z.unknown(), endpointTemplate: "/user/starred/{owner}/{repo}" });
+      return { starred: true, stars: detail.stars };
+    } catch (error) {
+      if (error instanceof GitHubApiError && error.details.status === 404) return { starred: false, stars: detail.stars };
+      if (error instanceof GitHubApiError) throw mapGitHubError(error);
+      throw error;
+    }
+  }
+
+  async setStar(owner: string, repo: string, starred: boolean): Promise<{ starred: boolean; stars: number }> {
+    const path = `/user/starred/${encodeGitHubSegment(owner)}/${encodeGitHubSegment(repo)}`;
+    try {
+      await this.github.request({ method: starred ? "PUT" : "DELETE", path, schema: z.unknown(), endpointTemplate: "/user/starred/{owner}/{repo}" });
+    } catch (error) {
+      if (error instanceof GitHubApiError) throw mapGitHubError(error, "STAR_FAILED");
+      throw error;
+    }
+    const detail = await this.detail(owner, repo);
+    return { starred, stars: detail.stars };
+  }
 }
 
 function toRepository(repo: z.infer<typeof repositorySchema>): RepositoryDto {
@@ -56,6 +86,12 @@ function toRepository(repo: z.infer<typeof repositorySchema>): RepositoryDto {
     id: repo.id, name: repo.name, owner: repo.owner.login, fullName: repo.full_name,
     visibility: repo.visibility ?? (repo.private ? "private" : "public"), description: repo.description,
     language: repo.language, stars: repo.stargazers_count, forks: repo.forks_count,
+    watchers: repo.watchers_count ?? repo.stargazers_count, openIssues: repo.open_issues_count ?? 0,
+    topics: repo.topics ?? [], archived: repo.archived ?? false, isFork: repo.fork ?? false,
+    homepage: repo.homepage ?? null, sizeKb: repo.size ?? 0,
+    license: repo.license?.spdx_id && repo.license.spdx_id !== "NOASSERTION" ? repo.license.spdx_id : null,
+    licenseName: repo.license?.name ?? null,
+    createdAt: repo.created_at ?? null, pushedAt: repo.pushed_at ?? null,
     updatedAt: repo.updated_at, defaultBranch: repo.default_branch, url: repo.html_url, avatarUrl: repo.owner.avatar_url
   };
 }

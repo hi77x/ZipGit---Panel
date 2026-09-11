@@ -25,7 +25,7 @@ test("authenticated repository list, README, and activity use real BFF data", as
   await expect(page.locator(".markdown-body script")).toHaveCount(0);
   await expect(page.locator(".markdown-body img")).toHaveAttribute("src", "https://raw.githubusercontent.com/octo/demo/main/x");
   expect(await page.locator(".markdown-body img").evaluate((image) => image.hasAttribute("onerror"))).toBe(false);
-  await page.getByRole("link", { name: "Activity" }).click();
+  await page.goto("/repositories/octo/demo/activity");
   await expect(page.getByText("pushed 1 commit to main")).toBeVisible();
 });
 

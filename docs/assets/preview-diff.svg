@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800" role="img" aria-label="RepoDeck review-grade diff preview">
+  <defs>
+    <radialGradient id="rglow" cx="50%" cy="0%" r="65%">
+      <stop offset="0%" stop-color="#7aa2ff" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#050506" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="800" fill="#050506"/>
+  <rect width="1280" height="800" fill="url(#rglow)"/>
+  <g font-family="ui-sans-serif, -apple-system, 'Segoe UI', sans-serif">
+    <text x="64" y="74" font-size="22" fill="#8a8f9b">octocat <tspan fill="#2b2f3a">/</tspan> <tspan font-size="30" font-weight="700" fill="#f7f8fa">repodeck</tspan></text>
+    <rect x="392" y="50" width="68" height="26" rx="13" fill="#16181e" stroke="#2b2f3a"/>
+    <text x="426" y="67" text-anchor="middle" font-size="10" font-weight="700" fill="#8a8f9b">PUBLIC</text>
+    <rect x="1060" y="48" width="156" height="36" rx="9" fill="#121317" stroke="#2b2f3a"/>
+    <text x="1138" y="71" text-anchor="middle" font-size="12.5" font-weight="600" fill="#c9cdd6">Open on GitHub ↗</text>
+    <g font-size="13" font-weight="600" fill="#8a8f9b">
+      <text x="64" y="124">Overview</text>
+      <text x="150" y="124">Code</text>
+      <text x="208" y="124">Commits</text>
+      <text x="290" y="124">Branches</text>
+      <text x="378" y="124">Issues</text>
+      <text x="448" y="124" fill="#f7f8fa">Pull requests</text>
+      <text x="560" y="124">Releases</text>
+      <text x="642" y="124">Radar</text>
+      <text x="704" y="124">Actions</text>
+      <text x="782" y="124">Pages</text>
+    </g>
+    <rect x="64" y="140" width="1152" height="2" fill="#1d1f27"/>
+    <rect x="448" y="140" width="96" height="2" fill="#ffffff"/>
+    <text x="64" y="196" font-size="22" font-weight="700" fill="#f7f8fa">Harden ZIP preflight against traversal</text>
+    <text x="64" y="222" font-size="12.5" fill="#8a8f9b">#148 opened by octocat · 12 files changed · +482 −217</text>
+    <rect x="64" y="246" width="64" height="26" rx="13" fill="#0f1a14" stroke="#1a4a35"/>
+    <text x="96" y="263" text-anchor="middle" font-size="10" font-weight="700" fill="#34d399">OPEN</text>
+    <rect x="140" y="246" width="208" height="26" rx="13" fill="#101116" stroke="#2b2f3a"/>
+    <text x="156" y="263" font-size="11" fill="#8a8f9b">octocat:fix/zip-preflight → main</text>
+    <rect x="64" y="300" width="1152" height="52" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+    <text x="88" y="331" font-size="13" fill="#c9cdd6">12 files changed</text>
+    <text x="222" y="331" font-size="13" font-weight="700" fill="#34d399">+482</text>
+    <text x="268" y="331" font-size="13" font-weight="700" fill="#f87171">−217</text>
+    <text x="318" y="331" font-size="13" fill="#8a8f9b">· 5/12 reviewed</text>
+    <rect x="920" y="311" width="188" height="30" rx="8" fill="#0d0e12" stroke="#2b2f3a"/>
+    <text x="944" y="331" font-size="12" fill="#5c6170">Filter by path…</text>
+    <rect x="1116" y="311" width="88" height="30" rx="8" fill="#121317" stroke="#2b2f3a"/>
+    <text x="1160" y="331" text-anchor="middle" font-size="11.5" font-weight="600" fill="#c9cdd6">Collapse all</text>
+    <g>
+      <rect x="64" y="372" width="1152" height="380" rx="12" fill="#0b0c0f" stroke="#1d1f27"/>
+      <rect x="64" y="372" width="1152" height="46" rx="12" fill="#101116"/>
+      <rect x="64" y="394" width="1152" height="24" fill="#101116"/>
+      <path d="M92 388 l5 6 l-5 6" fill="none" stroke="#8a8f9b" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M116 383 l6 0 l-3 8 l-3 -8 z M116 391 l6 0 l-3 8 l-3 -8 z" fill="none" stroke="#34d399" stroke-width="1.4"/>
+      <text x="136" y="400" font-family="ui-monospace, Consolas, monospace" font-size="13" fill="#c9cdd6">src/server/import/path-policy.ts</text>
+      <text x="1010" y="400" font-family="ui-monospace, Consolas, monospace" font-size="12" font-weight="700" fill="#34d399">+84</text>
+      <text x="1050" y="400" font-family="ui-monospace, Consolas, monospace" font-size="12" font-weight="700" fill="#f87171">−12</text>
+      <rect x="1096" y="383" width="14" height="14" rx="4" fill="#0f1a14" stroke="#34d399" stroke-width="1.5"/>
+      <path d="M1099 390 l3 3 l6 -6" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linecap="round"/>
+      <text x="1118" y="395" font-size="11" fill="#8a8f9b">Viewed</text>
+      <rect x="64" y="418" width="1152" height="30" fill="#0f1622"/>
+      <text x="88" y="438" font-family="ui-monospace, Consolas, monospace" font-size="12" fill="#7aa2ff">@@ -41,7 +41,18 @@ export function validateArchivePath</text>
+      <g font-family="ui-monospace, Consolas, monospace" font-size="12.5">
+        <text x="96" y="468" fill="#5c6170">41</text><text x="130" y="468" fill="#5c6170">41</text><text x="170" y="468" fill="#9aa0ac">  const normalized = path.normalize(entry);</text>
+        <rect x="64" y="478" width="1152" height="22" fill="#0f1a14"/>
+        <text x="96" y="493" fill="#5c6170">42</text><text x="130" y="493" fill="#34d399">42</text><text x="170" y="493" fill="#9fd8a6">+ if (normalized.startsWith("..") || normalized.includes("\0")) {</text>
+        <rect x="64" y="500" width="1152" height="22" fill="#0f1a14"/>
+        <text x="96" y="515" fill="#5c6170">43</text><text x="130" y="515" fill="#34d399">43</text><text x="170" y="515" fill="#9fd8a6">+   throw new AppError("UNSAFE_ZIP_PATH", "Archive contains an unsafe path.");</text>
+        <rect x="64" y="522" width="1152" height="22" fill="#0f1a14"/>
+        <text x="96" y="537" fill="#5c6170">44</text><text x="130" y="537" fill="#34d399">44</text><text x="170" y="537" fill="#9fd8a6">+ }</text>
+        <rect x="64" y="544" width="1152" height="22" fill="#1a1012"/>
+        <text x="96" y="559" fill="#f87171">45</text><text x="130" y="559" fill="#5c6170">45</text><text x="170" y="559" fill="#ffb4b4">− return path.join(root, entry);</text>
+        <text x="96" y="581" fill="#5c6170">46</text><text x="130" y="581" fill="#5c6170">46</text><text x="170" y="581" fill="#9aa0ac">  return { normalized, entry };</text>
+        <text x="96" y="603" fill="#5c6170">47</text><text x="130" y="603" fill="#5c6170">47</text><text x="170" y="603" fill="#9aa0ac">}</text>
+      </g>
+      <rect x="64" y="620" width="1152" height="30" fill="#0f1622"/>
+      <text x="88" y="640" font-family="ui-monospace, Consolas, monospace" font-size="12" fill="#7aa2ff">@@ -98,6 +107,9 @@ describe("path policy"</text>
+      <g font-family="ui-monospace, Consolas, monospace" font-size="12.5">
+        <rect x="64" y="650" width="1152" height="22" fill="#0f1a14"/>
+        <text x="96" y="665" fill="#5c6170">98</text><text x="130" y="665" fill="#34d399">107</text><text x="170" y="665" fill="#9fd8a6">+ it("rejects traversal inside nested paths", () =&gt; {</text>
+        <rect x="64" y="672" width="1152" height="22" fill="#0f1a14"/>
+        <text x="96" y="687" fill="#5c6170">99</text><text x="130" y="687" fill="#34d399">108</text><text x="170" y="687" fill="#9fd8a6">+   expect(() =&gt; validateArchivePath("docs/../../etc/passwd")).toThrow();</text>
+        <rect x="64" y="694" width="1152" height="22" fill="#0f1a14"/>
+        <text x="96" y="709" fill="#5c6170">100</text><text x="130" y="709" fill="#34d399">109</text><text x="170" y="709" fill="#9fd8a6">+ });</text>
+      </g>
+      <rect x="64" y="716" width="1152" height="36" rx="0" fill="#101116"/>
+      <text x="88" y="739" font-size="12" fill="#8a8f9b">Large diffs stay behind an explicit “Load diff” button — nothing hides silently.</text>
+    </g>
+    <g>
+      <rect x="64" y="764" width="560" height="0" rx="12" fill="none"/>
+    </g>
+  </g>
+</svg>
