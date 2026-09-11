@@ -22,6 +22,8 @@ const server = createServer(async (request, response) => {
   if (request.headers.authorization !== "Bearer e2e-access-token") return json(response, 401, { message: "Bad credentials" });
   if (path === "/user") return json(response, 200, { id: 1, login: "octo", name: "Octo Test", email: "octo@example.test", avatar_url: "https://avatars.githubusercontent.com/u/1?v=4" });
   if (path === "/user/orgs") return json(response, 200, []);
+  if (path === "/rate_limit") return json(response, 200, { resources: { core: { limit: 5000, used: 10, remaining: 4990, reset: Math.floor(Date.now() / 1000) + 3600 } } });
+  if (path === "/notifications") return json(response, 200, []);
   if (path === "/user/repos" && request.method === "GET") return json(response, 200, [repository]);
   if (path === "/user/repos" && request.method === "POST") { repositoryCreations += 1; return json(response, 201, { full_name: "octo/imported-app", html_url: "https://github.com/octo/imported-app", name: "imported-app", owner: { login: "octo" } }); }
   if (path === "/repos/octo/demo") return json(response, 200, repository);

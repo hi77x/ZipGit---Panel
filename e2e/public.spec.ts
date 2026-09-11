@@ -4,7 +4,7 @@ test("unauthenticated users see OAuth landing and protected routes redirect", as
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/?callbackUrl=%2Fdashboard/);
   await expect(page.getByRole("heading", { name: /Mission control/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Continue with GitHub" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Continue with GitHub" }).first()).toBeVisible();
 });
 
 test("health endpoint returns the standard safe envelope", async ({ request }) => {

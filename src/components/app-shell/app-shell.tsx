@@ -118,14 +118,14 @@ export function AppShell({ children, user, logout }: { children: React.ReactNode
 
 function buildCrumbs(pathname: string): Array<{ href: string; label: string }> {
   const parts = pathname.split("/").filter(Boolean);
-  const crumbs: Array<{ href: string; label: string }> = [{ href: "/dashboard", label: "RepoDeck" }];
+  const crumbs: Array<{ href: string; label: string }> = [];
+  if (pathname !== "/dashboard") crumbs.push({ href: "/dashboard", label: "RepoDeck" });
   let href = "";
   for (const part of parts) {
     href += `/${part}`;
-    const label = labelFor(part, href);
-    crumbs.push({ href, label });
+    crumbs.push({ href, label: labelFor(part, href) });
   }
-  if (crumbs.length === 1) crumbs.push({ href: "/dashboard", label: "Dashboard" });
+  if (!crumbs.length) crumbs.push({ href: "/dashboard", label: "Dashboard" });
   return crumbs.slice(0, 5);
 }
 
