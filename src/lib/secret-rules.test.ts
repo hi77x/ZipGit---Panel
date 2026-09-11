@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { maskValue, scanText, shannonEntropy, summarizeFindings } from "./secret-rules";
 
+const awsKey = ["AKIA", "ZYXWVUTSRQPONMLK"].join("");
+const githubToken = ["ghp_", "abcdefghijklmnopqrstuvwxyz0123456789"].join("");
+const privateKeyHeader = ["-----BEGIN RSA ", "PRIVATE KEY-----"].join("");
+const connectionString = `postgres://user:${["super", "secret"].join("")}@db.internal/app`;
+
 describe("secret scanner", () => {
   it("detects AWS and GitHub credentials", () => {
-    const findings = scanText("AWS_KEY=AKIAZYXWVUTSRQPONMLK\nTOKEN=ghp_abcdefghijklmnopqrstuvwxyz0123456789", "config.env");
+    const findings = scanText(`AWS_KEY=${awsKey}\nTOKEN=${githubToken}`, "config.env");
     const ids = findings.map((finding) => finding.ruleId);
     expect(ids).toContain("aws-access-key");
     expect(ids).toContain("github-token");
@@ -11,7 +16,7 @@ describe("secret scanner", () => {
   });
 
   it("masks the raw credential in snippets", () => {
-    const secret = "AKIAZYXWVUTSRQPONMLK";
+    const secret = awsKey;
     const finding = scanText(`key = ${secret}`, "a.txt")[0];
     expect(finding?.match).toBe(secret);
     expect(finding?.masked).not.toBe(secret);
@@ -20,7 +25,7 @@ describe("secret scanner", () => {
   });
 
   it("reports private keys and connection strings", () => {
-    const findings = scanText("-----BEGIN RSA PRIVATE KEY-----\npostgres://user:supersecret@db.internal/app", "secrets.md");
+    const findings = scanText(`${privateKeyHeader}\n${connectionString}`, "secrets.md");
     expect(findings.some((finding) => finding.ruleId === "private-key")).toBe(true);
     expect(findings.some((finding) => finding.ruleId === "connection-string")).toBe(true);
   });
