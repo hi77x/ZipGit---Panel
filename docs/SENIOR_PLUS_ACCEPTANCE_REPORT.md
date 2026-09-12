@@ -18,6 +18,7 @@ Commands executed from a clean checkout on the local workstation (Node.js 20.17.
 | `npm run test:e2e` | 16 tests passed against the production build with the mock GitHub server |
 | `npm audit --omit=dev --audit-level=high` | 0 vulnerabilities |
 | Production smoke (manual) | `/` returned 200 with the CSP nonce propagated to the theme script, `/api/health` returned 200 |
+| CI on the validated revision | `quality-gate` success (checks + Playwright E2E on Ubuntu/Node 22.12), `secret-scan` success (gitleaks), `security` success (CodeQL + dependency audit) |
 
 `npm run check:full` runs the full sequence and passed end to end after the final source changes.
 
@@ -133,10 +134,10 @@ Matrix: `docs/PERMISSIONS.md`. Decision: ADR 0003.
 
 ## Security
 
-- **gitleaks**: workflow pinned and previously green on the repository; locally the same fixture hygiene (no literal credentials) is enforced after the earlier gitleaks finding was fixed.
-- **CodeQL**: workflow added for `javascript-typescript` on push/PR/weekly. Results require a CI run (see blocked items).
-- **dependency review**: workflow added for pull requests, failing on high severity.
-- **npm audit**: `--omit=dev --audit-level=high` → 0 vulnerabilities; enforced in CI.
+- **gitleaks**: `secret-scan` workflow passed on the validated revision (SHA-pinned action).
+- **CodeQL**: `security` workflow passed for `javascript-typescript` on the validated revision.
+- **dependency review**: workflow added for pull requests, failing on high severity; exercised on the Dependabot PRs raised after this push.
+- **npm audit**: `--omit=dev --audit-level=high` → 0 vulnerabilities; enforced in CI (`security` workflow) and verified green.
 - **Malicious ZIP regression suite**: traversal, symlinks, encrypted entries, collisions, `.git`, overlong paths, malformed archives, and empty-after-exclusions all covered (`src/server/import/zip-reader.test.ts`).
 - **Token leakage regression**: auth boundary test proves the access token is absent from the session payload; log/telemetry redaction tests prove credential-shaped keys are dropped.
 - A real defect was found and fixed during this work: a ZIP with valid magic but a corrupt central directory leaked a raw parser error instead of `INVALID_ZIP`. The parser is now wrapped and the case is regression-tested.
@@ -162,15 +163,14 @@ Matrix: `docs/PERMISSIONS.md`. Decision: ADR 0003.
 | --- | --- | --- |
 | Docker image build + container smoke test | Docker is not installed on the workstation | First CI release run / local Docker host |
 | Real GitHub OAuth login and live mutations | No production OAuth credentials in this environment | Operator deployment; manual smoke test `docs/MANUAL_SMOKE_TEST.md` |
-| CodeQL and dependency-review results | Require a CI run on GitHub | Push to `main` / open a PR |
 | GHCR image, SBOM, and GitHub Release | Requires pushing a `v*` tag | Tagged release |
-| gitleaks execution | Binary not installed locally; runs in CI | CI `secret-scan` workflow |
 
 `docs/manual-smoke` style guidance remains in `docs/MANUAL_SMOKE_TEST.md` for real-GitHub verification.
 
 ## Git
 
-- Validated source revision: `62da18c2be218c50bff89ae3d785ff01761b6091` (all commands above ran against this revision plus the final ZIP regression test/fix, which is committed with the documentation).
+- Validated source revision: `62da18c2be218c50bff89ae3d785ff01761b6091` (all local commands above ran against this revision plus the final ZIP regression test/fix).
+- CI-verified revision: `bab9c6fc056da558fb96992d2b3e3fbf3dcc9ed4` (`quality-gate`, `secret-scan`, and `security` all succeeded on GitHub Actions).
 - Commits produced during this work:
 
 | Commit | Scope |
