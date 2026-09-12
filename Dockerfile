@@ -17,7 +17,16 @@ RUN npm run build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
+ARG REPODECK_VERSION=dev
+ARG REPODECK_COMMIT_SHA=unknown
+LABEL org.opencontainers.image.title="RepoDeck" \
+      org.opencontainers.image.description="Self-hosted command deck for GitHub" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/hi77x/ZipGit---Panel" \
+      org.opencontainers.image.version="$REPODECK_VERSION" \
+      org.opencontainers.image.revision="$REPODECK_COMMIT_SHA"
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0 \
+    REPODECK_VERSION=$REPODECK_VERSION REPODECK_COMMIT_SHA=$REPODECK_COMMIT_SHA
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static

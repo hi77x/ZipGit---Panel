@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/hi77x/ZipGit---Panel/security/advisories/new
+    about: Report vulnerabilities privately. Do not open a public issue for security problems.
+  - name: Deployment and permissions questions
+    url: https://github.com/hi77x/ZipGit---Panel/blob/main/docs/PERMISSIONS.md
+    about: Check the permission matrix before opening an issue.

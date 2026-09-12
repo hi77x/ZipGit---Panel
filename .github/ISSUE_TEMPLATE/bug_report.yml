@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible defect
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Please do not paste secrets, tokens, or private repository content into this issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Include the exact error message. RepoDeck error messages include a requestId.
+    validations:
+      required: true
+  - type: input
+    id: request-id
+    attributes:
+      label: Request or operation id
+      description: Shown in the error message or the import result panel.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: From /api/health or the Docker image tag.
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment
+      options:
+        - npm run dev
+        - npm start / standalone
+        - Docker Compose
+        - Other
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version

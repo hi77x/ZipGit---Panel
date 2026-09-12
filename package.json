@@ -19,12 +19,15 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:security": "vitest run src/lib/secret-rules.test.ts src/server/import/secret-preflight.test.ts src/server/import/import-service.fault.test.ts src/server/authz/capabilities.test.ts src/server/services/capability-enforcement.test.ts",
     "test:e2e": "playwright test",
     "doctor": "node scripts/doctor.mjs",
     "setup": "node scripts/setup.mjs",
     "docker:up": "docker compose up -d --build",
     "docker:logs": "docker compose logs -f app",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run build"
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "check:full": "npm run lint && npm run typecheck && npm run test:coverage && npm run test:security && npm run build && npm run test:e2e"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
@@ -42,6 +45,7 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.56.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -51,6 +55,7 @@
     "@types/react-dom": "^19.2.2",
     "@types/sanitize-html": "^2.16.0",
     "@types/yauzl": "^2.10.3",
+    "@vitest/coverage-v8": "^4.0.4",
     "eslint": "^9.38.0",
     "eslint-config-next": "^16.0.0",
     "jsdom": "^27.0.1",

@@ -97,7 +97,7 @@ export function AppShell({ children, user, logout }: { children: React.ReactNode
           <NotificationBell/>
           <ThemeToggle/>
           <div className="user-menu" ref={userMenuRef}>
-            <button type="button" className="user-menu-trigger" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-haspopup="menu">
+            <button type="button" className="user-menu-trigger" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-haspopup="menu" aria-label={`Account menu for ${user.login}`}>
               {user.avatarUrl ? <Image src={user.avatarUrl} alt="" width={24} height={24} className="avatar-sm"/> : <User aria-hidden="true"/>}
             </button>
             {menuOpen ? <div className="menu-popover" role="menu">

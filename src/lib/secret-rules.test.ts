@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { maskValue, scanText, shannonEntropy, summarizeFindings } from "./secret-rules";
+import { maskValue, scanFiles, scanText, severityRank, severityWeight, shannonEntropy, summarizeFindings, toPublicFinding } from "./secret-rules";
 
 const awsKey = ["AKIA", "ZYXWVUTSRQPONMLK"].join("");
 const githubToken = ["ghp_", "abcdefghijklmnopqrstuvwxyz0123456789"].join("");
@@ -52,5 +52,56 @@ describe("secret scanner", () => {
     expect(maskValue("short")).toBe("•••••");
     expect(maskValue("abcdefghijklmnop")).toContain("abcd");
     expect(maskValue("abcdefghijklmnop").length).toBeLessThan(20);
+  });
+
+  it("detects cloud, payment, and messaging credentials", () => {
+    const cases: Array<[string, string]> = [
+      [["AI", "zaSyB1234567890abcdefghijklmnopqrstuv"].join(""), "google-api-key"],
+      [["sk", "_live_", "1234567890abcdefghijklmnop"].join(""), "stripe-live-key"],
+      [["xoxb", "-123456789012-abcdefghijklmnop"].join(""), "slack-token"],
+      [["key", "-", "0123456789abcdef0123456789abcdef"].join(""), "mailgun-key"],
+      [["SG", ".", "abcdefghijklmnopqrstuv", ".", "abcdefghijklmnopqrstuvwxyz01234567890ABCDEFG"].join(""), "sendgrid-key"],
+      [["dop", "_v1_", "a".repeat(64)].join(""), "digitalocean-token"],
+      [["shpat", "_", "abcdef0123456789abcdef0123456789"].join(""), "shopify-token"],
+      [["hf", "_", "abcdefghijklmnopqrstuvwxyz123456"].join(""), "huggingface-token"],
+      ["login.postgres://postgres:not-a-real-credential@db.local:5432/app", "connection-string"],
+      ["https://user:topsecretvalue@internal.corp/api", "basic-auth-url"]
+    ];
+    for (const [content, expectedRule] of cases) {
+      const findings = scanText(content, "config.ts");
+      expect(findings.map((finding) => finding.ruleId), content).toContain(expectedRule);
+    }
+  });
+
+  it("flags JWT, Azure keys, openai, and anthropic tokens", () => {
+    const jwt = ["eyJhbGciOiJIUzI1NiJ9", "eyJzdWIiOiIxMjM0NTY3ODkwIn0", "dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"].join(".");
+    const azure = `AccountKey=${"A".repeat(88)}`;
+    const openai = ["sk-proj-", "abcdefghijklmnopqrstuv", "T3BlbkFJ", "abcdefghijklmnopqrstuv"].join("");
+    const anthropic = ["sk-ant-api03-", "abcdefghijklmnopqrstuvwxyz"].join("");
+    expect(scanText(jwt, "a.ts")[0]?.ruleId).toBe("jwt");
+    expect(scanText(azure, "b.ts")[0]?.ruleId).toBe("azure-account-key");
+    expect(scanText(openai, "c.ts")[0]?.ruleId).toBe("openai-key");
+    expect(scanText(anthropic, "d.ts")[0]?.ruleId).toBe("anthropic-key");
+  });
+
+  it("supports file batches with a size budget", () => {
+    const secret = ["AKIA", "ZYXWVUTSRQPONMLK"].join("");
+    const findings = scanFiles([{ path: "small.env", content: `KEY=${secret}` }, { path: "big.env", content: `KEY=${secret}\n${"x".repeat(100)}` }], { maxFileBytes: 40 });
+    expect(findings.some((finding) => finding.path === "small.env")).toBe(true);
+    expect(findings.some((finding) => finding.path === "big.env")).toBe(false);
+  });
+
+  it("orders severities and strips raw matches from public findings", () => {
+    expect(severityWeight("critical")).toBeGreaterThan(severityWeight("low"));
+    expect(severityRank("critical")).toBeLessThan(severityRank("info"));
+    expect(severityWeight("info")).toBe(1);
+    expect(severityRank("info")).toBe(4);
+    const secret = ["AKIA", "ZYXWVUTSRQPONMLK"].join("");
+    const internal = scanText(`key = ${secret}`, "a.txt")[0];
+    expect(internal).toBeDefined();
+    const publicFinding = toPublicFinding(internal as NonNullable<typeof internal>);
+    expect("match" in publicFinding).toBe(false);
+    expect(publicFinding.masked).toBe(internal?.masked);
+    expect(JSON.stringify(publicFinding)).not.toContain(secret);
   });
 });

@@ -7,9 +7,9 @@ export default defineConfig({
   use: { baseURL: "http://127.0.0.1:3000", trace: "on-first-retry" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], ...(process.env.CI ? {} : { channel: "msedge" as const }) } }],
   webServer: [
-    { command: "node e2e/mock-github.mjs", url: "http://127.0.0.1:4010/__health", reuseExistingServer: !process.env.CI },
+    { command: "node e2e/mock-github.mjs", url: "http://127.0.0.1:4010/__health", reuseExistingServer: !process.env.CI, timeout: 30_000 },
     {
-      command: "npm run dev", url: "http://127.0.0.1:3000", reuseExistingServer: !process.env.CI,
+      command: "npm run build && npm run start", url: "http://127.0.0.1:3000", reuseExistingServer: !process.env.CI, timeout: 180_000,
       env: {
         AUTH_SECRET: "test-secret-test-secret-test-secret",
         AUTH_GITHUB_ID: "test-client",

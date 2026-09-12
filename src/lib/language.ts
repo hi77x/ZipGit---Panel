@@ -55,6 +55,7 @@ const languages: Record<string, LanguageInfo> = {
   bat: { id: "batch", name: "Batch", color: "#8a8f9b", syntax: "shell" },
   cmd: { id: "batch", name: "Batch", color: "#8a8f9b", syntax: "shell" },
   sql: { id: "sql", name: "SQL", color: "#e38c00", syntax: "sql" },
+  cmake: { id: "cmake", name: "CMake", color: "#8a8f9b", syntax: "code" },
   dockerfile: { id: "dockerfile", name: "Dockerfile", color: "#384d54", syntax: "shell" },
   makefile: { id: "makefile", name: "Makefile", color: "#8a8f9b", syntax: "code" },
   tf: { id: "terraform", name: "Terraform", color: "#844fba", syntax: "code" },
@@ -65,8 +66,8 @@ const languages: Record<string, LanguageInfo> = {
 };
 
 const specialNames: Record<string, string> = {
-  dockerfile: "dockerfile", makefile: "makefile", "cmakelists.txt": "code", license: "markdown", notice: "markdown",
-  ".gitignore": "shell", ".dockerignore": "shell", ".env": "env", ".editorconfig": "ini", gemfile: "rb", rakefile: "rb",
+  dockerfile: "dockerfile", makefile: "makefile", "cmakelists.txt": "cmake", license: "markdown", notice: "markdown",
+  ".gitignore": "sh", ".dockerignore": "sh", ".env": "env", ".editorconfig": "ini", gemfile: "rb", rakefile: "rb",
   "go.mod": "go", "go.sum": "go", cargo: "toml"
 };
 
