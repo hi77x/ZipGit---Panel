@@ -25,6 +25,24 @@ export type SecretFinding = {
   remediation: string;
 };
 
+export type PublicSecretFinding = Omit<SecretFinding, "match">;
+
+export function toPublicFinding(finding: SecretFinding): PublicSecretFinding {
+  return {
+    id: finding.id,
+    ruleId: finding.ruleId,
+    name: finding.name,
+    description: finding.description,
+    severity: finding.severity,
+    path: finding.path,
+    line: finding.line,
+    column: finding.column,
+    masked: finding.masked,
+    snippet: finding.snippet,
+    remediation: finding.remediation
+  };
+}
+
 const placeholderPattern = /example|dummy|sample|placeholder|changeme|your[_-]|redacted|xxxx|<[^>]+>|\$\{|process\.env|os\.environ/i;
 
 export const secretRules: SecretRule[] = [

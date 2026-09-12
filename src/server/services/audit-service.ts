@@ -8,8 +8,10 @@ import type { RepositoryDto } from "@/shared/contracts/repository";
 import { computeHealth, type HealthCheck } from "@/lib/health";
 import { detectManifests, hasTestSignals, type DetectedManifest } from "@/lib/dependencies";
 import { isBinaryPath, languageColor, languageFromPath } from "@/lib/language";
-import { scanFiles, summarizeFindings } from "@/lib/secret-rules";
+import { scanFiles, summarizeFindings, toPublicFinding } from "@/lib/secret-rules";
 import { GitHubClient } from "@/server/github/client";
+import { log } from "@/lib/logger";
+import { counter, histogram, withSpan } from "@/server/observability/telemetry";
 import { GitHubApiError, mapGitHubError } from "@/server/github/errors";
 import { RepositoryService } from "./repository-service";
 
@@ -57,6 +59,19 @@ export class AuditService {
   constructor(private readonly github: GitHubClient, private readonly repositories = new RepositoryService(github)) {}
 
   async audit(owner: string, repo: string, ref?: string): Promise<AuditServiceReport> {
+    const started = performance.now();
+    const report = await withSpan("audit.execute", { owner, repo }, () => this.auditInternal(owner, repo, ref));
+    const durationMs = Math.round(performance.now() - started);
+    histogram("repodeck.audit.duration", "Repository audit duration").record(durationMs);
+    counter("repodeck.audit.runs", "Repository audit runs").add(1, { truncated: String(report.truncated) });
+    for (const [severity, count] of Object.entries(report.secrets.summary.bySeverity)) {
+      if (count > 0) counter("repodeck.secret.findings", "Secret findings by severity").add(count, { severity, source: "audit" });
+    }
+    log("info", { service: "audit", owner, repo, durationMs, files: report.fileCount, findings: report.secrets.summary.total, truncated: report.truncated });
+    return report;
+  }
+
+  private async auditInternal(owner: string, repo: string, ref?: string): Promise<AuditServiceReport> {
     if (ref !== undefined && !isSafeGitHubRef(ref)) throw new AppError("VALIDATION_ERROR", "Invalid Git reference.", 400, false, { ref: "Invalid ref" });
     const repository = await this.repositories.detail(owner, repo);
     const targetRef = ref ?? repository.defaultBranch;
@@ -130,7 +145,7 @@ export class AuditService {
         commitsScanned: commitStats.commitsScanned,
         checks,
         health,
-        secrets: { findings, summary },
+        secrets: { findings: findings.map(toPublicFinding), summary },
         languages: languageSlices(blobs, repository.language),
         contributors,
         activity: commitStats.activity,

@@ -2,6 +2,7 @@ import "server-only";
 import { z } from "zod";
 import { getServerEnv } from "@/lib/env";
 import { log } from "@/lib/logger";
+import { counter, histogram, withSpan } from "@/server/observability/telemetry";
 import { GitHubApiError } from "./errors";
 import { parseLinkHeader } from "./pagination";
 
@@ -44,6 +45,8 @@ function retryDelayMs(error: unknown, attempt: number): number {
   return Math.round(ceiling / 2 + Math.random() * (ceiling / 2));
 }
 
+export { retryDelayMs };
+
 export class GitHubClient {
   public lastRateLimit: GitHubRateLimit | null = null;
   public lastRetryCount = 0;
@@ -68,6 +71,7 @@ export class GitHubClient {
         if (attempt === attempts - 1 || !retryable || options.signal?.aborted) throw error;
         this.lastRetryCount = attempt + 1;
         const delay = retryDelayMs(error, attempt);
+        counter("repodeck.github.retries", "GitHub retry attempts").add(1, { endpoint: options.endpointTemplate ?? "github.unknown", status: error instanceof GitHubApiError ? String(error.details.status) : "network" });
         log("warn", { requestId: this.requestId, service: "github", event: "github_retry", githubEndpointTemplate: options.endpointTemplate ?? options.path, attempt: attempt + 1, delayMs: delay, githubStatus: error instanceof GitHubApiError ? error.details.status : 0 });
         await sleep(delay);
       }
@@ -76,6 +80,18 @@ export class GitHubClient {
   }
 
   private async execute<T>(options: RequestOptions<T>, method: NonNullable<RequestOptions<T>["method"]>): Promise<GitHubResult<T>> {
+    const endpoint = options.endpointTemplate ?? "github.unknown";
+    return withSpan("github.request", { method, endpoint, requestId: this.requestId }, async () => {
+      const started = performance.now();
+      try {
+        return await this.executeFetch(options, method);
+      } finally {
+        histogram("repodeck.github.request.duration", "GitHub request duration").record(Math.round(performance.now() - started), { method, endpoint });
+      }
+    });
+  }
+
+  private async executeFetch<T>(options: RequestOptions<T>, method: NonNullable<RequestOptions<T>["method"]>): Promise<GitHubResult<T>> {
     const env = getServerEnv();
     const url = new URL(options.path, this.options.baseUrl ?? env.GITHUB_API_BASE_URL);
     for (const [key, value] of Object.entries(options.query ?? {})) if (value !== undefined) url.searchParams.set(key, String(value));
@@ -101,6 +117,8 @@ export class GitHubClient {
       const rateLimit = readRateLimit(response.headers);
       this.lastRateLimit = rateLimit;
       const githubRequestId = response.headers.get("x-github-request-id");
+      const endpoint = options.endpointTemplate ?? "github.unknown";
+      counter("repodeck.github.requests", "GitHub API requests").add(1, { method, endpoint, status: response.status >= 500 ? "5xx" : response.status >= 400 ? String(response.status) : "ok" });
       log("info", {
         requestId: this.requestId, service: "github", operation: method,
         githubEndpointTemplate: options.endpointTemplate ?? options.path, githubStatus: response.status,
@@ -123,6 +141,7 @@ export class GitHubClient {
       if (error instanceof z.ZodError) throw error;
       const aborted = controller.signal.aborted;
       const externalAbort = Boolean(options.signal?.aborted);
+      counter("repodeck.github.requests", "GitHub API requests").add(1, { method, endpoint: options.endpointTemplate ?? "github.unknown", status: "network" });
       log("warn", { requestId: this.requestId, service: "github", event: aborted ? "github_aborted" : "github_network_error", githubEndpointTemplate: options.endpointTemplate ?? options.path, externalAbort, durationMs: Math.round(performance.now() - started) });
       if (error instanceof Error && error.name === "AbortError" && !externalAbort) {
         throw new GitHubApiError({ status: 0, message: "GitHub request timed out", remaining: null, resetAt: null, retryAfter: null, githubRequestId: null, fields: [] });

@@ -12,6 +12,7 @@ import { GitObjectWriter } from "./git-object-writer";
 import { importLimits, repositoryCleanupEnabled } from "./constants";
 import { scanArchiveContents, type ImportScanResult } from "./secret-preflight";
 import { describeImportError, ImportTransaction } from "./import-transaction";
+import { counter, histogram, withSpan } from "@/server/observability/telemetry";
 
 const createdRepoSchema = z.object({ full_name: z.string(), html_url: z.url(), name: z.string(), owner: z.object({ login: z.string() }) });
 
@@ -38,6 +39,13 @@ export class ImportService {
   }
 
   async execute(filePath: string, fields: ImportFields): Promise<ImportOutcome> {
+    const started = performance.now();
+    const outcome = await withSpan("import.execute", { owner: fields.owner, repository: fields.repositoryName }, () => this.executeTransaction(filePath, fields));
+    recordImportOutcome(outcome, Math.round(performance.now() - started));
+    return outcome;
+  }
+
+  private async executeTransaction(filePath: string, fields: ImportFields): Promise<ImportOutcome> {
     const operationId = randomUUID();
     const transaction = new ImportTransaction(operationId);
     const repositoryName = validateRepositoryName(fields.repositoryName);
@@ -112,19 +120,19 @@ export class ImportService {
   private async publish(transaction: ImportTransaction, fields: ImportFields, repositoryName: string, archive: ZipPreflight, base: OutcomeBase): Promise<ImportOutcome> {
     const abort = new AbortController();
     try {
-      const created = await this.createRepository(fields, repositoryName);
+      const created = await withSpan("import.repository.create", { repository: `${fields.owner}/${repositoryName}` }, () => this.createRepository(fields, repositoryName));
       transaction.recordRepository({ owner: created.owner.login, name: created.name, fullName: created.full_name, url: created.html_url });
       transaction.stage("REPOSITORY_CREATED", created.full_name);
       transaction.stage("BLOBS_WRITING", `blobs=${archive.entries.length}`);
-      const tree = await this.writer.writeBlobs(created.owner.login, created.name, archive, { signal: abort.signal });
+      const tree = await withSpan("import.blobs.write", { files: archive.entries.length }, () => this.writer.writeBlobs(created.owner.login, created.name, archive, { signal: abort.signal }));
       transaction.stage("TREE_CREATED");
-      const treeSha = await this.writer.createTree(created.owner.login, created.name, tree);
-      const commitSha = await this.writer.createCommit(created.owner.login, created.name, { message: fields.commitMessage, tree: treeSha, parents: [] });
+      const treeSha = await withSpan("import.tree.create", {}, () => this.writer.createTree(created.owner.login, created.name, tree));
+      const commitSha = await withSpan("import.commit.create", {}, () => this.writer.createCommit(created.owner.login, created.name, { message: fields.commitMessage, tree: treeSha, parents: [] }));
       transaction.stage("COMMIT_CREATED");
-      await this.writer.publishRef(created.owner.login, created.name, fields.defaultBranch, commitSha);
+      await withSpan("import.ref.publish", { branch: fields.defaultBranch }, () => this.writer.publishRef(created.owner.login, created.name, fields.defaultBranch, commitSha));
       transaction.recordRef({ ref: `refs/heads/${fields.defaultBranch}`, sha: commitSha });
       transaction.stage("REF_PUBLISHED", fields.defaultBranch);
-      await this.writer.configureDefaultBranch(created.owner.login, created.name, fields.defaultBranch);
+      await withSpan("import.default_branch.configure", { branch: fields.defaultBranch }, () => this.writer.configureDefaultBranch(created.owner.login, created.name, fields.defaultBranch));
       transaction.stage("DEFAULT_BRANCH_CONFIGURED");
       transaction.stage("COMPLETED");
       return transaction.build("completed", {
@@ -199,4 +207,15 @@ function rejectionMessage(scan: ImportScanResult): string {
   if (scan.blocking.length > 0) parts.push(`${scan.blocking.length} blocking credential finding${scan.blocking.length === 1 ? "" : "s"}`);
   if (scan.highRiskUnscanned.length > 0) parts.push(`${scan.highRiskUnscanned.length} credential file${scan.highRiskUnscanned.length === 1 ? "" : "s"} that could not be scanned`);
   return `Import blocked before any GitHub mutation: ${parts.join(" and ")} detected in the archive.`;
+}
+
+function recordImportOutcome(outcome: ImportOutcome, durationMs: number): void {
+  counter("repodeck.import.outcomes", "Import outcomes").add(1, { status: outcome.status, stage: outcome.stage });
+  histogram("repodeck.import.duration", "Import duration").record(durationMs);
+  histogram("repodeck.import.files", "Imported file count").record(outcome.importedFileCount);
+  const severities = new Map<string, number>();
+  for (const finding of outcome.findings) severities.set(finding.severity, (severities.get(finding.severity) ?? 0) + 1);
+  for (const [severity, count] of severities) counter("repodeck.secret.findings", "Secret findings by severity").add(count, { severity, source: "import" });
+  if (outcome.scan.truncated) counter("repodeck.import.scan_truncated", "Imports rejected with truncated scans").add(1);
+  if (outcome.cleanup.repositoryRemainder) counter("repodeck.import.cleanup_incomplete", "Imports leaving a repository shell").add(1);
 }

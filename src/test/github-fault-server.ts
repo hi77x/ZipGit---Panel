@@ -8,6 +8,7 @@ export type FaultRule = {
   status?: number;
   body?: unknown;
   text?: string;
+  headers?: Record<string, string>;
   times?: number;
   delayMs?: number;
   drop?: boolean;
@@ -88,7 +89,7 @@ export class GitHubFaultServer {
     if (rule) {
       if (rule.drop) { request.socket.destroy(); return; }
       if (rule.delayMs) await sleep(rule.delayMs);
-      if (rule.status) { this.respond(response, rule.status, rule.body, rule.text); return; }
+      if (rule.status) { this.respond(response, rule.status, rule.body, rule.text, rule.headers); return; }
     }
     if (request.headers.authorization !== `Bearer ${this.accessToken}`) return this.respond(response, 401, { message: "Bad credentials" });
 
@@ -180,10 +181,10 @@ export class GitHubFaultServer {
     try { return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}") as Record<string, unknown>; } catch { return {}; }
   }
 
-  private respond(response: import("node:http").ServerResponse, status: number, body?: unknown, text?: string): void {
+  private respond(response: import("node:http").ServerResponse, status: number, body?: unknown, text?: string, headers?: Record<string, string>): void {
     if (status === 204) { response.writeHead(204); response.end(); return; }
-    if (text !== undefined) { response.writeHead(status, { "content-type": "text/plain" }); response.end(text); return; }
-    response.writeHead(status, { "content-type": "application/json", "x-ratelimit-limit": "5000", "x-ratelimit-remaining": "4999", "x-ratelimit-reset": String(Math.floor(Date.now() / 1000) + 3600) });
+    if (text !== undefined) { response.writeHead(status, { "content-type": "text/plain", ...headers }); response.end(text); return; }
+    response.writeHead(status, { "content-type": "application/json", "x-ratelimit-limit": "5000", "x-ratelimit-remaining": "4999", "x-ratelimit-reset": String(Math.floor(Date.now() / 1000) + 3600), ...headers });
     response.end(JSON.stringify(body ?? {}));
   }
 }

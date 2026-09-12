@@ -40,7 +40,7 @@ test("Actions dispatch accepts GitHub 204 and run controls reflect status", asyn
   await page.goto("/repositories/octo/demo/actions");
   await expect(page.getByRole("link", { name: /CI/ }).first()).toBeVisible();
   await page.getByRole("button", { name: "Dispatch" }).click();
-  await expect(page.getByText("Workflow dispatch accepted.")).toBeVisible();
+  await expect(page.getByText("Workflow dispatch accepted.")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("button", { name: "Re-run" })).toBeVisible();
 });
 

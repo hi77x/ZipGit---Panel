@@ -8,6 +8,7 @@ const repository = {
   id: 101, name: "demo", full_name: "octo/demo", private: false, visibility: "public",
   description: "Deterministic GitHub fixture", language: "TypeScript", stargazers_count: 7, forks_count: 2,
   updated_at: "2026-09-07T07:00:00.000Z", default_branch: "main", html_url: "https://github.com/octo/demo",
+  permissions: { admin: true, maintain: true, push: true, triage: true, pull: true },
   owner: { login: "octo", avatar_url: "https://avatars.githubusercontent.com/u/1?v=4" }
 };
 

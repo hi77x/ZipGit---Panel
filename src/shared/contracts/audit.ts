@@ -1,6 +1,6 @@
 import type { HealthReport } from "@/lib/health";
 import type { DetectedManifest } from "@/lib/dependencies";
-import type { SecretFinding, SecretSeverity } from "@/lib/secret-rules";
+import type { PublicSecretFinding, SecretSeverity } from "@/lib/secret-rules";
 
 export type LanguageSlice = { name: string; bytes: number; percent: number; color: string };
 export type ContributorStat = { login: string; avatarUrl: string | null; commits: number; percent: number };
@@ -33,7 +33,7 @@ export type AuditReportDto = {
   checks: RepositoryChecks;
   health: HealthReport;
   secrets: {
-    findings: SecretFinding[];
+    findings: PublicSecretFinding[];
     summary: { total: number; bySeverity: Record<SecretSeverity, number>; riskScore: number; affectedFiles: number };
   };
   languages: LanguageSlice[];

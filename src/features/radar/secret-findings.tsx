@@ -2,14 +2,14 @@
 import { useMemo, useState } from "react";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
 import { Badge, Panel, PanelBody, PanelHead } from "@/components/ui/card";
-import type { SecretFinding, SecretSeverity } from "@/lib/secret-rules";
+import type { PublicSecretFinding, SecretSeverity } from "@/lib/secret-rules";
 
 type SecretSummary = { total: number; bySeverity: Record<SecretSeverity, number>; riskScore: number; affectedFiles: number };
 type Tone = "danger" | "warning" | "accent" | "info" | "neutral";
 const severityOrder: SecretSeverity[] = ["critical", "high", "medium", "low", "info"];
 const severityTone: Record<SecretSeverity, Tone> = { critical: "danger", high: "warning", medium: "accent", low: "info", info: "neutral" };
 
-export function SecretFindings({ findings, summary }: { findings: SecretFinding[]; summary: SecretSummary }) {
+export function SecretFindings({ findings, summary }: { findings: PublicSecretFinding[]; summary: SecretSummary }) {
   const [severity, setSeverity] = useState<SecretSeverity | "all">("all");
   const visible = useMemo(() => (severity === "all" ? findings : findings.filter((finding) => finding.severity === severity)), [findings, severity]);
   if (!summary.total) {
@@ -36,7 +36,7 @@ export function SecretFindings({ findings, summary }: { findings: SecretFinding[
   </Panel>;
 }
 
-function FindingCard({ finding }: { finding: SecretFinding }) {
+function FindingCard({ finding }: { finding: PublicSecretFinding }) {
   const highlight = finding.snippet.indexOf(finding.masked);
   return <article className={`finding finding-${finding.severity}`}>
     <div className="finding-head">

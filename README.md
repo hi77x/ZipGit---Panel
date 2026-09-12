@@ -162,6 +162,13 @@ Behind a reverse proxy, forward `X-Forwarded-Proto` / `X-Forwarded-For`, set `NE
 | `IMPORT_MAX_UNCOMPRESSED_BYTES` | no | `262144000` | Total uncompressed limit |
 | `IMPORT_MAX_FILES` | no | `5000` | Maximum archive entries |
 | `IMPORT_MAX_SINGLE_FILE_BYTES` | no | `52428800` | Single-file limit |
+| `IMPORT_MAX_SCAN_FILES` | no | `400` | Files read by the content secret scan |
+| `IMPORT_MAX_SCAN_FILE_BYTES` | no | `524288` | Per-file secret scan budget |
+| `IMPORT_MAX_SCAN_BYTES` | no | `8388608` | Total secret scan budget |
+| `IMPORT_MAX_SCAN_FINDINGS` | no | `200` | Maximum findings returned to the browser |
+| `REPODECK_ALLOW_REPOSITORY_CLEANUP` | no | `false` | Opt in to deleting repositories created by a failed import (requires `delete_repo`) |
+| `REPODECK_COMMIT_SHA` | no | — | Commit SHA reported by health endpoints |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | no | — | Enables optional OpenTelemetry export |
 
 ## Why RepoDeck
 
@@ -227,6 +234,10 @@ npm run build
 npm run test:e2e   # Playwright with a mock GitHub server
 npm run check      # lint + typecheck + tests + production build
 ```
+
+## Observability
+
+Structured JSON logs with a documented schema are always on. Every request carries a `requestId`; every import carries an `operationId` that links preflight, repository creation, blob writes, tree, commit, ref, compensation, and the final result. Optional vendor-neutral OpenTelemetry traces and metrics are enabled by setting `OTEL_EXPORTER_OTLP_ENDPOINT`. Health is split: `/api/health` and `/api/health/live` are liveness and never call GitHub; `/api/health/ready` validates local configuration only. See [docs/DEBUGGING.md](docs/DEBUGGING.md).
 
 ## Project structure
 
