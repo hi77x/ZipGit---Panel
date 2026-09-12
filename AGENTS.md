@@ -35,3 +35,13 @@ Use the classes in `src/app/globals.css` and components from `src/components/ui`
 
 Run `npm run lint`, `npm run typecheck`, and `npm run test` before considering work complete. `npm run check` adds the production build. Engine changes in `src/lib` require unit tests.
 
+`npm run check:full` is the authoritative local acceptance gate: lint, typecheck, coverage thresholds, security regression tests, production build, and Playwright E2E (including accessibility scans). Security-relevant changes must also run `npm run test:security`.
+
+## Invariants
+
+- All GitHub network calls go through `src/server/github/client.ts`.
+- Every mutation is authorized with `requireCapability(...)` before contacting GitHub.
+- Import publishes the branch ref only after all Git objects exist; compensation only touches side effects created by the operation.
+- No raw secret, token, or repository content crosses the server boundary or enters logs/telemetry.
+- Expensive fan-out uses bounded concurrency and explicit budgets.
+

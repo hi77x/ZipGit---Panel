@@ -27,12 +27,24 @@ Server Components / Client Components
 - `src/components`: design system, code viewer, diff viewer, charts, app shell, command palette
 - `src/shared/contracts`: serializable DTO and Zod contracts, including the typed API envelope
 - `src/server/services`: repository, README, activity, Pages, Actions, content, branch, commit, issue, pull, release, notification, search, and audit use cases
+- `src/server/authz`: the capability model and server-side authorization helpers
+- `src/server/observability`: optional vendor-neutral telemetry facade
 - `src/server/github`: the only GitHub HTTP transport, error mapping, rate-limit parsing, and pagination
-- `src/server/import`: archive policy, lazy preflight, Git object writing, and import orchestration
+- `src/server/import`: archive policy, transaction journal, content secret scan, Git object writing, and import orchestration
 - `src/lib`: self-written, dependency-free engines and helpers — unified diff parser, syntax tokenizer, secret rules, health scoring, manifest detection, fuzzy search, formatting, theme, URLs
 - `src/components/diff`, `src/components/code`: rendering layers for the diff parser and tokenizer
 
 Client Components never import `src/server`. GitHub access tokens exist only in the encrypted Auth.js JWT cookie and server request context.
+
+## Architecture invariants
+
+1. Client Components never receive GitHub credentials.
+2. All GitHub network calls go through one transport boundary (`src/server/github/client.ts`).
+3. Every mutation is server-authorized through the capability model before GitHub is contacted.
+4. No unbounded archive or repository fan-out: import blobs, audit downloads, and aggregation have explicit limits.
+5. No raw detected secrets cross the server boundary; findings are masked and typed for the browser.
+6. Every critical mutation has deterministic failure semantics: import is transactional, and other mutations return stable typed codes.
+7. Liveness never depends on GitHub availability.
 
 ## API envelope
 
@@ -88,6 +100,14 @@ Repository shell deletion is disabled by default because it requires a broad `de
 - Docker: multi-stage Node 22 Alpine image, non-root runtime, `/tmp` volume for imports, `/api/health` health check.
 - Launchers: `start.ps1` (Windows) and `start.sh` (macOS/Linux) handle setup, doctor, install, and run.
 - Short-timeout serverless platforms should move `ImportService` and `AuditService` to durable workers; their boundaries are already isolated for that migration.
+
+## Authorization
+
+`src/server/authz/capabilities.ts` maps GitHub repository permission flags to roles and named capabilities. Mutation services call `requireCapability(repository, capability)` immediately after resolving repository access, reusing the same detail response. Unknown permission data denies mutation capabilities; archived repositories are read-only. UI hints are derived from the same model but are not an enforcement boundary. See `docs/PERMISSIONS.md` and ADR 0003.
+
+## Observability
+
+Structured JSON logs with a documented schema and central redaction are always on. Optional OpenTelemetry spans and metrics cover HTTP requests, GitHub transport, import stages, and audits; export activates only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Health is split into liveness (`/api/health`, `/api/health/live`) and readiness (`/api/health/ready`), and readiness never calls GitHub. See `docs/DEBUGGING.md` and ADR 0004.
 
 ## Security headers
 

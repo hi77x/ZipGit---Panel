@@ -18,7 +18,12 @@ export class ZipReader {
     const file = await fs.open(filePath, "r");
     try { await file.read(header, 0, 4, 0); } finally { await file.close(); }
     if (!isZipMagic(header)) throw new AppError("INVALID_ZIP", "The uploaded file is not a valid ZIP archive.", 400);
-    const zip = await openZip(filePath);
+    let zip: ZipFile;
+    try {
+      zip = await openZip(filePath);
+    } catch (error) {
+      throw new AppError("INVALID_ZIP", "The ZIP directory could not be read safely.", 400, false, {}, { cause: error });
+    }
     try {
       const limits = importLimits();
       const accepted: ZipImportEntry[] = [];

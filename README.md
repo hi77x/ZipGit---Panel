@@ -224,6 +224,21 @@ Every response uses the same envelope with `ok`, `data`, `requestId`, and `rateL
 - Import is failure-atomic: the branch ref is published only after every Git object exists, and a failed operation either removes what it created or reports `cleanup_incomplete` with exact remediation. Repository deletion is opt-in via `REPODECK_ALLOW_REPOSITORY_CLEANUP`, never a required scope.
 - Secret findings are masked server-side; raw credentials are never sent to the browser, logs, or traces.
 
+## Failure semantics
+
+RepoDeck is built to answer the uncomfortable questions:
+
+| Question | Answer |
+| --- | --- |
+| What happens when GitHub fails mid-import? | The branch ref is published last; failed operations delete what they created or report `cleanup_incomplete` with remediation. |
+| What happens on the 317th blob? | Queued writes are cancelled and in-flight requests aborted; no partial branch is visible. |
+| Who may perform a mutation? | A server-side capability check derived from GitHub permissions, before any request is sent. |
+| Can a request be safely retried? | Reads retry with bounded jitter and `Retry-After`; mutations never retry automatically. |
+| Can a secret reach a trace? | No: logs and telemetry drop credential-shaped fields, and findings are masked at the source. |
+| How do I reconstruct a failure? | One `requestId` per request and one `operationId` per import link logs and spans end to end. |
+
+Read the details in [docs/PERMISSIONS.md](docs/PERMISSIONS.md), [docs/DEBUGGING.md](docs/DEBUGGING.md), [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md), and the [architecture decision records](docs/adr/).
+
 ## Validation
 
 ```bash

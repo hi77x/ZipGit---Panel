@@ -1,5 +1,20 @@
 # Changelog
 
+## 5.1.0
+
+Senior+ hardening release. No visual redesign; the product now behaves predictably under failure.
+
+- **Transactional import**: typed state machine, stable `operationId`, late branch publication, cancellation of queued blob writes, and honest `failed` / `compensated` / `cleanup_incomplete` outcomes with safe remediation. Optional repository cleanup stays behind `REPODECK_ALLOW_REPOSITORY_CLEANUP` (ADR 0002).
+- **Content-level secret scanning before mutation**: the shared secret engine now scans archive text content with file and byte budgets, blocks critical/high findings and unscannable credential files, masks every finding, and surfaces truncated scans instead of reporting "clean". Raw matches are removed from the audit API too.
+- **Server-side capability model**: one resolver maps GitHub permissions to roles and capabilities; every mutation service enforces it before contacting GitHub; unknown and archived states deny; UI hints follow the same model (`docs/PERMISSIONS.md`, ADR 0003).
+- **Auth boundary hardening**: explicit HttpOnly/SameSite/Secure cookies, 30-day JWT lifetime, redirect allowlist, exported config with regression tests, and ADR 0001 documenting the pinned Auth.js beta and migration plan.
+- **Observability**: documented log schema with redaction and truncation; optional OpenTelemetry traces/metrics via OTLP; per-request metrics; split liveness/readiness health endpoints with version and commit metadata (`docs/DEBUGGING.md`, ADR 0004).
+- **GitHub resilience**: retry classes with bounded jitter, `Retry-After` support, no retries for mutations, distinct schema-mismatch signal, abort propagation, and request cancellation (ADR 0005).
+- **Testing**: fault-injection GitHub server, 15 import atomicity scenarios, retry/abort tests, capability matrix and enforcement tests, auth boundary tests, log/telemetry redaction tests, coverage thresholds for critical modules, and Playwright + axe accessibility scans.
+- **CI, supply chain, and releases**: SHA-pinned GitHub Actions, CodeQL, dependency review, `npm audit` gate, Dependabot, and a tag-driven release workflow with GHCR images, semver/sha tags, SBOM, and GitHub releases.
+- **Contributor experience**: rewritten CONTRIBUTING with a first-contribution path, PR and issue templates, CODEOWNERS, and `npm run check:full`.
+- **Threat model**: `docs/THREAT_MODEL.md` with assets, boundaries, mitigations, and accepted limitations.
+
 ## 5.0.0
 
 - Rebranded ZipToGit Pro as **RepoDeck**, a full self-hosted command deck for GitHub.

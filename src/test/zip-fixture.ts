@@ -2,7 +2,7 @@ import { promises as fs } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-export type ZipFixtureFile = { path: string; content: string | Buffer };
+export type ZipFixtureFile = { path: string; content: string | Buffer; unixMode?: number; encrypted?: boolean };
 
 export function buildZip(files: ZipFixtureFile[]): Buffer {
   const chunks: Buffer[] = [];
@@ -12,10 +12,12 @@ export function buildZip(files: ZipFixtureFile[]): Buffer {
     const name = Buffer.from(file.path);
     const data = Buffer.isBuffer(file.content) ? file.content : Buffer.from(file.content);
     const crc = crc32(data);
+    const flags = file.encrypted ? 0x1 : 0;
+    const mode = file.unixMode ?? 0o100644;
     const local = Buffer.alloc(30);
     local.writeUInt32LE(0x04034b50, 0);
     local.writeUInt16LE(20, 4);
-    local.writeUInt16LE(0, 6);
+    local.writeUInt16LE(flags, 6);
     local.writeUInt16LE(0, 8);
     local.writeUInt32LE(crc, 14);
     local.writeUInt32LE(data.length, 18);
@@ -28,14 +30,14 @@ export function buildZip(files: ZipFixtureFile[]): Buffer {
     entry.writeUInt32LE(0x02014b50, 0);
     entry.writeUInt16LE(0x0314, 4);
     entry.writeUInt16LE(20, 6);
-    entry.writeUInt16LE(0, 8);
+    entry.writeUInt16LE(flags, 8);
     entry.writeUInt16LE(0, 10);
     entry.writeUInt16LE(0, 12);
     entry.writeUInt32LE(crc, 16);
     entry.writeUInt32LE(data.length, 20);
     entry.writeUInt32LE(data.length, 24);
     entry.writeUInt16LE(name.length, 28);
-    entry.writeUInt32LE((0o100644 << 16) >>> 0, 38);
+    entry.writeUInt32LE((mode << 16) >>> 0, 38);
     entry.writeUInt32LE(offset, 42);
     central.push(entry, name);
     offset += local.length + name.length + data.length;
